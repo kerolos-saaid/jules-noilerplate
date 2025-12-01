@@ -65,11 +65,11 @@ graph TB
     API --> Monitor
     API --> HealthCheck
     
-    style API fill:#e1f5ff
-    style Auth fill:#fff3e0
-    style DB fill:#f3e5f5
-    style Cache fill:#e8f5e9
-    style Queue fill:#e8f5e9
+    style API fill:#4fc3f7,stroke:#01579b,stroke-width:2px,color:#000
+    style Auth fill:#ffb74d,stroke:#e65100,stroke-width:2px,color:#000
+    style DB fill:#ba68c8,stroke:#4a148c,stroke-width:2px,color:#000
+    style Cache fill:#81c784,stroke:#1b5e20,stroke-width:2px,color:#000
+    style Queue fill:#81c784,stroke:#1b5e20,stroke-width:2px,color:#000
 ```
 
 ## ✨ Features
@@ -197,7 +197,7 @@ graph TB
 
 The `docker-compose.yml` file contains default credentials for development. **Always change these in production environments.**
 
-## � UProject Structure
+## 📁 Project Structure
 
 ```
 src/
@@ -278,10 +278,10 @@ graph LR
     C -.-> C3
     C -.-> C4
     
-    style A fill:#e3f2fd
-    style H fill:#e8f5e9
-    style D fill:#fff3e0
-    style E fill:#fce4ec
+    style A fill:#4fc3f7,stroke:#01579b,stroke-width:2px,color:#000
+    style H fill:#81c784,stroke:#1b5e20,stroke-width:2px,color:#000
+    style D fill:#ffb74d,stroke:#e65100,stroke-width:2px,color:#000
+    style E fill:#f06292,stroke:#880e4f,stroke-width:2px,color:#000
 ```
 
 ### Authentication & Authorization Flow
@@ -491,9 +491,9 @@ graph TB
     Graf -.-> M5
     Graf -.-> M6
     
-    style App fill:#e1f5ff
-    style Prom fill:#fff3e0
-    style Graf fill:#f3e5f5
+    style App fill:#4fc3f7,stroke:#01579b,stroke-width:2px,color:#000
+    style Prom fill:#ffb74d,stroke:#e65100,stroke-width:2px,color:#000
+    style Graf fill:#ba68c8,stroke:#4a148c,stroke-width:2px,color:#000
 ```
 
 Access Grafana at http://localhost:3001 (default credentials: admin/admin)
