@@ -98,46 +98,52 @@ export class EmailService {
 
 ## Common Use Cases
 
-### 1. External API Calls
+### 1. Payment Gateway
 ```typescript
-async fetchUserData(userId: string) {
+async processPayment(amount: number, currency: string) {
   return this.circuitBreakerService.execute(
-    'user-api',
-    async (id) => {
-      const response = await fetch(`https://api.example.com/users/${id}`);
+    'payment-gateway',
+    async (amt, curr) => {
+      const response = await fetch('https://payment-api.com/charge', {
+        method: 'POST',
+        body: JSON.stringify({ amount: amt, currency: curr }),
+      });
+      return response.json();
+    },
+    { timeout: 15000, errorThresholdPercentage: 40 },
+    amount,
+    currency,
+  );
+}
+```
+
+### 2. Email Service
+```typescript
+async sendEmail(to: string, subject: string, body: string) {
+  return this.circuitBreakerService.execute(
+    'email-service',
+    async (emailTo, emailSubject, emailBody) => {
+      await emailProvider.send({ to: emailTo, subject: emailSubject, body: emailBody });
+    },
+    { timeout: 10000, errorThresholdPercentage: 30 },
+    to,
+    subject,
+    body,
+  );
+}
+```
+
+### 3. Third-Party API
+```typescript
+async getWeatherData(city: string) {
+  return this.circuitBreakerService.execute(
+    'weather-api',
+    async (cityName) => {
+      const response = await fetch(`https://api.weather.com/data?city=${cityName}`);
       return response.json();
     },
     { timeout: 5000 },
-    userId,
-  );
-}
-```
-
-### 2. Database Queries (External DB)
-```typescript
-async queryExternalDB(query: string) {
-  return this.circuitBreakerService.execute(
-    'external-db',
-    async (q) => {
-      // External database query
-      return await externalDB.query(q);
-    },
-    { timeout: 10000, errorThresholdPercentage: 40 },
-    query,
-  );
-}
-```
-
-### 3. Third-Party Services
-```typescript
-async uploadToS3(file: Buffer) {
-  return this.circuitBreakerService.execute(
-    's3-upload',
-    async (fileBuffer) => {
-      return await s3Client.upload(fileBuffer);
-    },
-    { timeout: 30000 },
-    file,
+    city,
   );
 }
 ```
@@ -161,10 +167,67 @@ The circuit breaker automatically logs state changes:
 
 ## When NOT to Use
 
-- Internal database queries (use connection pooling instead)
-- Fast, reliable internal services
-- Operations that must always execute
+- **Internal database queries** - Use TypeORM connection pooling instead
+- **Fast, reliable internal services** - No need for circuit breaker
+- **Operations that must always execute** - Circuit breaker will fail fast
+- **File system operations** - Usually reliable, no need for protection
+
+## Important Notes
+
+⚠️ **Circuit breaker does NOT work automatically!**
+
+You must explicitly wrap your external calls with `circuitBreakerService.execute()` or create a breaker with `createBreaker()`.
+
+✅ **Use circuit breaker for:**
+- Payment gateways (Stripe, PayPal, etc.)
+- Email/SMS services (SendGrid, Twilio, etc.)
+- Third-party APIs (weather, geocoding, etc.)
+- External company databases/services
+- Cloud storage (S3, Azure Blob, etc.)
+
+❌ **Don't use circuit breaker for:**
+- Your main PostgreSQL database
+- Your Redis cache
+- Internal microservices
 - File system operations
+
+## Testing & Demo
+
+The module includes demo endpoints for testing circuit breaker behavior:
+
+### Available Endpoints
+
+1. **Test Circuit Breaker**
+   ```bash
+   GET /api/v1/demo/circuit-breaker/test?failRate=80
+   ```
+   Simulates external API calls with configurable failure rate (0-100)
+
+2. **View Statistics**
+   ```bash
+   GET /api/v1/demo/circuit-breaker/stats
+   ```
+   Shows current circuit state and statistics
+
+3. **Reset Circuit**
+   ```bash
+   GET /api/v1/demo/circuit-breaker/reset
+   ```
+   Clears the demo circuit breaker
+
+### How to Test
+
+1. Start the server: `npm run start:dev`
+2. Call test endpoint with high failure rate:
+   ```bash
+   curl "http://localhost:3000/api/v1/demo/circuit-breaker/test?failRate=80"
+   ```
+3. Repeat 5-10 times quickly to trigger circuit opening
+4. Check stats to see circuit state:
+   ```bash
+   curl http://localhost:3000/api/v1/demo/circuit-breaker/stats
+   ```
+5. Watch logs for: `Circuit breaker [demo-api] opened`
 
 ## Advanced: Getting Circuit Breaker Stats
 
