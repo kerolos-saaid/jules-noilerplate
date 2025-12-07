@@ -32,7 +32,10 @@ export class CircuitBreakerService {
       ...options,
     };
 
-    const breaker = new CircuitBreaker(action, defaultOptions);
+    const breaker = new CircuitBreaker(action, defaultOptions) as CircuitBreaker<
+      Parameters<T>,
+      ReturnType<T>
+    >;
 
     // Event listeners for monitoring
     breaker.on('open', () => {
