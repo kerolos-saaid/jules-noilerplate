@@ -38,7 +38,7 @@
 - **nestjs-i18n** - Internationalization
 - **helmet** - Security headers
 - **multer / multer-s3** - File uploads
-- **nest-circuit-break** - Circuit breaker pattern
+- **opossum** - Circuit breaker pattern (industry standard)
 - **@nestjs/schedule** - Cron jobs
 - **@nestjs/event-emitter** - Event-driven architecture
 

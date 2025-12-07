@@ -20,7 +20,7 @@ import { PrometheusModule } from './modules/prometheus/prometheus.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { CircuitBreakerModule } from 'nest-circuit-break';
+import { CircuitBreakerModule } from './modules/circuit-breaker';
 import { FileUploadModule } from './modules/file-upload/file-upload.module';
 import * as path from 'path';
 import { I18nModule, AcceptLanguageResolver } from 'nestjs-i18n';

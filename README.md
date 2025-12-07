@@ -104,7 +104,7 @@ graph TB
 - **Response Compression**: Gzip compression for reduced bandwidth
 - **Connection Pooling**: Optimized database connection management
 - **Background Jobs**: Async task processing with BullMQ
-- **Circuit Breaker**: Resilience pattern for external service calls
+- **Circuit Breaker**: Resilience pattern using Opossum (industry standard)
 
 ### 📊 Observability
 - **Structured Logging**: JSON logs with `nestjs-pino` for easy parsing
@@ -117,7 +117,7 @@ graph TB
 - **BullMQ**: Robust job queue for background processing
 - **Cron Jobs**: Scheduled tasks with `@nestjs/schedule`
 - **Event Emitter**: Decoupled event-driven architecture
-- **Circuit Breaker**: Automatic failure detection and recovery
+- **Circuit Breaker**: Automatic failure detection with Opossum
 
 ### 🛠️ Developer Experience
 - **File Uploads**: Flexible upload handling (local filesystem or S3)
