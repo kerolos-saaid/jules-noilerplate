@@ -1,6 +1,6 @@
-import { Module, Global } from '@nestjs/common';
-import { PrometheusController } from './prometheus.controller';
-import { PrometheusService } from './prometheus.service';
+import { Module, Global } from "@nestjs/common";
+import { PrometheusController } from "./prometheus.controller";
+import { PrometheusService } from "./prometheus.service";
 
 @Global()
 @Module({

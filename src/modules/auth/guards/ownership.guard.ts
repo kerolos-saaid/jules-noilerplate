@@ -1,5 +1,5 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Injectable, CanActivate, ExecutionContext } from "@nestjs/common";
+import { Observable } from "rxjs";
 
 @Injectable()
 export class OwnershipGuard implements CanActivate {
@@ -15,7 +15,9 @@ export class OwnershipGuard implements CanActivate {
     // e.g., const resource = await this.resourceService.findOne(resourceId);
     // return user.id === resource.userId;
 
-    console.log(`[OwnershipGuard] User ${user.sub} attempting to access resource ${resourceId}.`);
+    console.log(
+      `[OwnershipGuard] User ${user.sub} attempting to access resource ${resourceId}.`,
+    );
     // Placeholder logic: allow access for demonstration.
     // Replace with actual ownership check.
     return true;

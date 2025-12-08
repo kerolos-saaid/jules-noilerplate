@@ -1,10 +1,14 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcrypt';
-import { JwtPayload } from './strategies/jwt.strategy';
-import { RegisterDto } from './dto/register.dto';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { JwtService } from "@nestjs/jwt";
+import { UsersService } from "../users/users.service";
+import * as bcrypt from "bcrypt";
+import { JwtPayload } from "./strategies/jwt.strategy";
+import { RegisterDto } from "./dto/register.dto";
 
 @Injectable()
 export class AuthService {
@@ -24,12 +28,16 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload: JwtPayload = { sub: user.id, roles: user.roles.map((r: any) => r.name) };
+    const payload: JwtPayload = {
+      sub: user.id,
+      roles: user.roles.map((r: any) => r.name),
+    };
     return {
       access_token: this.jwtService.sign(payload),
       refresh_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d') as `${number}${'s' | 'm' | 'h' | 'd'}`,
+        secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
+        expiresIn: (this.configService.get<string>("JWT_REFRESH_EXPIRES_IN") ||
+          "7d") as `${number}${"s" | "m" | "h" | "d"}`,
       }),
     };
   }
@@ -48,7 +56,7 @@ export class AuthService {
     );
 
     if (existingUser) {
-      throw new ConflictException('Username or email already exists');
+      throw new ConflictException("Username or email already exists");
     }
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);

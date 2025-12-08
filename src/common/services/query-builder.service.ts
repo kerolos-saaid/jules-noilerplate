@@ -1,9 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { SelectQueryBuilder, ObjectLiteral } from 'typeorm';
-import { PaginationQueryDto } from '../dto/pagination-query.dto';
-import { QueryDto } from '../dto/query.dto';
-import { PaginatedResponse } from '../interfaces/paginated-response.interface';
-import { FilterOperator } from '../enums/filter-operator.enum';
+import { Injectable, BadRequestException } from "@nestjs/common";
+import { SelectQueryBuilder, ObjectLiteral } from "typeorm";
+import { PaginationQueryDto } from "../dto/pagination-query.dto";
+import { QueryDto } from "../dto/query.dto";
+import { PaginatedResponse } from "../interfaces/paginated-response.interface";
+import { FilterOperator } from "../enums/filter-operator.enum";
 
 @Injectable()
 export class QueryBuilderService {
@@ -36,23 +36,23 @@ export class QueryBuilderService {
   applySorting<T extends ObjectLiteral>(
     queryBuilder: SelectQueryBuilder<T>,
     sortBy: string | undefined,
-    sortOrder: 'ASC' | 'DESC' = 'DESC',
+    sortOrder: "ASC" | "DESC" = "DESC",
     allowedFields: string[],
     alias: string,
   ): SelectQueryBuilder<T> {
     // Default to 'id' DESC if no sort specified
     if (!sortBy) {
-      return queryBuilder.orderBy(`${alias}.id`, 'DESC');
+      return queryBuilder.orderBy(`${alias}.id`, "DESC");
     }
 
     // Support multiple sort fields (comma-separated)
-    const sortFields = sortBy.split(',').map((field) => field.trim());
+    const sortFields = sortBy.split(",").map((field) => field.trim());
 
     // Validate all sort fields are in allowedFields list
     for (const field of sortFields) {
       if (!allowedFields.includes(field)) {
         throw new BadRequestException(
-          `Invalid sort field: ${field}. Allowed fields: ${allowedFields.join(', ')}`,
+          `Invalid sort field: ${field}. Allowed fields: ${allowedFields.join(", ")}`,
         );
       }
     }
@@ -91,25 +91,36 @@ export class QueryBuilderService {
     Object.keys(filters).forEach((field) => {
       if (!allowedFields.includes(field)) {
         throw new BadRequestException(
-          `Invalid filter field: ${field}. Allowed fields: ${allowedFields.join(', ')}`,
+          `Invalid filter field: ${field}. Allowed fields: ${allowedFields.join(", ")}`,
         );
       }
     });
 
     Object.entries(filters).forEach(([field, filterValue]) => {
-
       // Handle nested property filters using dot notation
-      const fieldPath = field.includes('.') ? field : `${alias}.${field}`;
+      const fieldPath = field.includes(".") ? field : `${alias}.${field}`;
 
       // If filterValue is an object with operators
-      if (typeof filterValue === 'object' && filterValue !== null && !Array.isArray(filterValue)) {
+      if (
+        typeof filterValue === "object" &&
+        filterValue !== null &&
+        !Array.isArray(filterValue)
+      ) {
         Object.entries(filterValue).forEach(([operator, value]) => {
-          this.applyFilterOperator(queryBuilder, fieldPath, operator, value, field);
+          this.applyFilterOperator(
+            queryBuilder,
+            fieldPath,
+            operator,
+            value,
+            field,
+          );
         });
       } else {
         // Simple equality filter
         const paramName = this.generateParamName(field);
-        queryBuilder.andWhere(`${fieldPath} = :${paramName}`, { [paramName]: filterValue });
+        queryBuilder.andWhere(`${fieldPath} = :${paramName}`, {
+          [paramName]: filterValue,
+        });
       }
     });
 
@@ -135,22 +146,34 @@ export class QueryBuilderService {
 
     switch (operator) {
       case FilterOperator.EQUALS:
-        queryBuilder.andWhere(`${fieldPath} = :${paramName}`, { [paramName]: value });
+        queryBuilder.andWhere(`${fieldPath} = :${paramName}`, {
+          [paramName]: value,
+        });
         break;
       case FilterOperator.NOT_EQUALS:
-        queryBuilder.andWhere(`${fieldPath} != :${paramName}`, { [paramName]: value });
+        queryBuilder.andWhere(`${fieldPath} != :${paramName}`, {
+          [paramName]: value,
+        });
         break;
       case FilterOperator.GREATER_THAN:
-        queryBuilder.andWhere(`${fieldPath} > :${paramName}`, { [paramName]: value });
+        queryBuilder.andWhere(`${fieldPath} > :${paramName}`, {
+          [paramName]: value,
+        });
         break;
       case FilterOperator.GREATER_THAN_OR_EQUAL:
-        queryBuilder.andWhere(`${fieldPath} >= :${paramName}`, { [paramName]: value });
+        queryBuilder.andWhere(`${fieldPath} >= :${paramName}`, {
+          [paramName]: value,
+        });
         break;
       case FilterOperator.LESS_THAN:
-        queryBuilder.andWhere(`${fieldPath} < :${paramName}`, { [paramName]: value });
+        queryBuilder.andWhere(`${fieldPath} < :${paramName}`, {
+          [paramName]: value,
+        });
         break;
       case FilterOperator.LESS_THAN_OR_EQUAL:
-        queryBuilder.andWhere(`${fieldPath} <= :${paramName}`, { [paramName]: value });
+        queryBuilder.andWhere(`${fieldPath} <= :${paramName}`, {
+          [paramName]: value,
+        });
         break;
       case FilterOperator.LIKE:
         // Escape special characters in LIKE patterns
@@ -161,11 +184,15 @@ export class QueryBuilderService {
         break;
       case FilterOperator.IN:
         if (Array.isArray(value)) {
-          queryBuilder.andWhere(`${fieldPath} IN (:...${paramName})`, { [paramName]: value });
+          queryBuilder.andWhere(`${fieldPath} IN (:...${paramName})`, {
+            [paramName]: value,
+          });
         }
         break;
       default:
-        throw new BadRequestException(`Unsupported filter operator: ${operator}`);
+        throw new BadRequestException(
+          `Unsupported filter operator: ${operator}`,
+        );
     }
   }
 
@@ -176,9 +203,11 @@ export class QueryBuilderService {
    * @returns Unique parameter name
    */
   private generateParamName(field: string, operator?: string): string {
-    const sanitizedField = field.replace(/\./g, '_');
+    const sanitizedField = field.replace(/\./g, "_");
     const timestamp = Date.now();
-    return operator ? `${sanitizedField}_${operator}_${timestamp}` : `${sanitizedField}_${timestamp}`;
+    return operator
+      ? `${sanitizedField}_${operator}_${timestamp}`
+      : `${sanitizedField}_${timestamp}`;
   }
 
   /**
@@ -187,11 +216,11 @@ export class QueryBuilderService {
    * @returns Escaped pattern
    */
   private escapeLikePattern(pattern: string): string {
-    if (typeof pattern !== 'string') {
+    if (typeof pattern !== "string") {
       return pattern;
     }
     // Escape special SQL LIKE characters: % and _
-    return pattern.replace(/[%_]/g, '\\$&');
+    return pattern.replace(/[%_]/g, "\\$&");
   }
 
   /**

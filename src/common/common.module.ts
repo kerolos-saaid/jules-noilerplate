@@ -1,5 +1,5 @@
-import { Global, Module } from '@nestjs/common';
-import { QueryBuilderService } from './services/query-builder.service';
+import { Global, Module } from "@nestjs/common";
+import { QueryBuilderService } from "./services/query-builder.service";
 
 /**
  * CommonModule provides shared utilities and services across the application.

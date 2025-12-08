@@ -1,5 +1,5 @@
-import { IsOptional, IsString, IsEnum, IsObject } from 'class-validator';
-import { PaginationQueryDto } from './pagination-query.dto';
+import { IsOptional, IsString, IsEnum, IsObject } from "class-validator";
+import { PaginationQueryDto } from "./pagination-query.dto";
 
 export class QueryDto extends PaginationQueryDto {
   @IsOptional()
@@ -7,8 +7,8 @@ export class QueryDto extends PaginationQueryDto {
   sortBy?: string;
 
   @IsOptional()
-  @IsEnum(['ASC', 'DESC'])
-  sortOrder?: 'ASC' | 'DESC' = 'DESC';
+  @IsEnum(["ASC", "DESC"])
+  sortOrder?: "ASC" | "DESC" = "DESC";
 
   @IsOptional()
   @IsObject()

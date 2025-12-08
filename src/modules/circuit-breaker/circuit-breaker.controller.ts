@@ -1,40 +1,39 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
-import { CircuitBreakerService } from './circuit-breaker.service';
-import { Public } from '../auth/decorators/public.decorator';
+import { Controller, Get, Query } from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { CircuitBreakerService } from "./circuit-breaker.service";
+import { Public } from "../auth/decorators/public.decorator";
 
-@ApiTags('Demo - Circuit Breaker')
-@Controller('demo/circuit-breaker')
+@ApiTags("Demo - Circuit Breaker")
+@Controller("demo/circuit-breaker")
 export class CircuitBreakerController {
-  constructor(
-    private readonly circuitBreakerService: CircuitBreakerService,
-  ) {}
+  constructor(private readonly circuitBreakerService: CircuitBreakerService) {}
 
   @Public()
-  @Get('test')
+  @Get("test")
   @ApiOperation({
-    summary: 'Test circuit breaker behavior',
+    summary: "Test circuit breaker behavior",
     description:
-      'Simulates external API calls with configurable failure rate. Call multiple times with high failRate (e.g., 80) to trigger circuit opening.',
+      "Simulates external API calls with configurable failure rate. Call multiple times with high failRate (e.g., 80) to trigger circuit opening.",
   })
   @ApiQuery({
-    name: 'failRate',
+    name: "failRate",
     required: false,
     type: Number,
-    description: 'Failure rate percentage (0-100). Default: 50. Use 80+ to quickly open circuit.',
+    description:
+      "Failure rate percentage (0-100). Default: 50. Use 80+ to quickly open circuit.",
     example: 80,
   })
-  async testCircuitBreaker(@Query('failRate') failRate?: string) {
+  async testCircuitBreaker(@Query("failRate") failRate?: string) {
     const rate = failRate ? parseInt(failRate, 10) : 50;
 
     try {
       const result = await this.circuitBreakerService.execute(
-        'demo-api',
+        "demo-api",
         async (failureRate: number) => {
           // Simulate random failures
           const random = Math.random() * 100;
           if (random < failureRate) {
-            throw new Error('Simulated API failure');
+            throw new Error("Simulated API failure");
           }
 
           // Simulate API delay
@@ -42,7 +41,7 @@ export class CircuitBreakerController {
 
           return {
             success: true,
-            message: 'API call succeeded',
+            message: "API call succeeded",
             timestamp: new Date().toISOString(),
           };
         },
@@ -59,34 +58,34 @@ export class CircuitBreakerController {
       return {
         success: false,
         message: error.message,
-        circuitOpen: error.message.includes('breaker is open'),
+        circuitOpen: error.message.includes("breaker is open"),
         timestamp: new Date().toISOString(),
       };
     }
   }
 
   @Public()
-  @Get('stats')
+  @Get("stats")
   @ApiOperation({
-    summary: 'Get circuit breaker statistics',
-    description: 'View current state and stats of the demo circuit breaker',
+    summary: "Get circuit breaker statistics",
+    description: "View current state and stats of the demo circuit breaker",
   })
   getStats() {
-    const breaker = this.circuitBreakerService.getBreaker('demo-api');
+    const breaker = this.circuitBreakerService.getBreaker("demo-api");
 
     if (!breaker) {
       return {
-        message: 'Circuit breaker not initialized yet. Call /test first.',
+        message: "Circuit breaker not initialized yet. Call /test first.",
       };
     }
 
     return {
-      name: 'demo-api',
+      name: "demo-api",
       state: breaker.opened
-        ? 'OPEN'
+        ? "OPEN"
         : breaker.halfOpen
-          ? 'HALF_OPEN'
-          : 'CLOSED',
+          ? "HALF_OPEN"
+          : "CLOSED",
       stats: {
         fires: breaker.stats.fires,
         successes: breaker.stats.successes,
@@ -104,16 +103,16 @@ export class CircuitBreakerController {
   }
 
   @Public()
-  @Get('reset')
+  @Get("reset")
   @ApiOperation({
-    summary: 'Reset circuit breaker',
-    description: 'Clear the demo circuit breaker and its stats',
+    summary: "Reset circuit breaker",
+    description: "Clear the demo circuit breaker and its stats",
   })
   reset() {
-    const breaker = this.circuitBreakerService.getBreaker('demo-api');
+    const breaker = this.circuitBreakerService.getBreaker("demo-api");
     if (breaker) {
       breaker.shutdown();
     }
-    return { message: 'Circuit breaker reset successfully' };
+    return { message: "Circuit breaker reset successfully" };
   }
 }

@@ -4,27 +4,27 @@ import {
   ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-} from 'class-validator';
+} from "class-validator";
 
 /**
  * Validator constraint that checks if a field name is in the allowed list
  */
-@ValidatorConstraint({ name: 'isAllowedField', async: false })
+@ValidatorConstraint({ name: "isAllowedField", async: false })
 export class IsAllowedFieldConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments): boolean {
     const [allowedFields] = args.constraints;
-    
+
     if (!value) {
       return true; // Allow undefined/null values (use @IsOptional for that)
     }
 
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       return false;
     }
 
     // Support comma-separated fields (for sortBy)
-    const fields = value.split(',').map((field) => field.trim());
-    
+    const fields = value.split(",").map((field) => field.trim());
+
     // Check if all fields are in the allowed list
     return fields.every((field) => allowedFields.includes(field));
   }
@@ -32,7 +32,7 @@ export class IsAllowedFieldConstraint implements ValidatorConstraintInterface {
   defaultMessage(args: ValidationArguments): string {
     const [allowedFields] = args.constraints;
     const property = args.property;
-    return `${property} must be one of: ${allowedFields.join(', ')}`;
+    return `${property} must be one of: ${allowedFields.join(", ")}`;
   }
 }
 
@@ -41,7 +41,7 @@ export class IsAllowedFieldConstraint implements ValidatorConstraintInterface {
  * @param allowedFields - Array of allowed field names
  * @param validationOptions - Optional validation options
  * @returns PropertyDecorator
- * 
+ *
  * @example
  * class UsersQueryDto {
  *   @IsAllowedField(['username', 'email', 'createdAt'])
@@ -54,7 +54,7 @@ export function IsAllowedField(
 ) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'isAllowedField',
+      name: "isAllowedField",
       target: object.constructor,
       propertyName: propertyName,
       constraints: [allowedFields],

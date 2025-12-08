@@ -3,10 +3,10 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
-} from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { PrometheusService } from '../../modules/prometheus/prometheus.service';
+} from "@nestjs/common";
+import { Observable } from "rxjs";
+import { tap } from "rxjs/operators";
+import { PrometheusService } from "../../modules/prometheus/prometheus.service";
 
 @Injectable()
 export class MetricsInterceptor implements NestInterceptor {

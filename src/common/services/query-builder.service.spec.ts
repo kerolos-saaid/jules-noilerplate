@@ -1,9 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { QueryBuilderService } from './query-builder.service';
-import { SelectQueryBuilder } from 'typeorm';
-import { PaginationQueryDto } from '../dto/pagination-query.dto';
+import { Test, TestingModule } from "@nestjs/testing";
+import { QueryBuilderService } from "./query-builder.service";
+import { SelectQueryBuilder } from "typeorm";
+import { PaginationQueryDto } from "../dto/pagination-query.dto";
 
-describe('QueryBuilderService', () => {
+describe("QueryBuilderService", () => {
   let service: QueryBuilderService;
 
   beforeEach(async () => {
@@ -14,14 +14,14 @@ describe('QueryBuilderService', () => {
     service = module.get<QueryBuilderService>(QueryBuilderService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
   // Feature: query-features, Property 2: Correct offset calculation
   // Validates: Requirements 1.2
-  describe('Property 2: Correct offset calculation', () => {
-    it('should calculate correct offset as (page - 1) × limit', () => {
+  describe("Property 2: Correct offset calculation", () => {
+    it("should calculate correct offset as (page - 1) × limit", () => {
       const testCases = [
         { page: 1, limit: 10, expectedSkip: 0 },
         { page: 2, limit: 10, expectedSkip: 10 },
@@ -42,7 +42,7 @@ describe('QueryBuilderService', () => {
       });
     });
 
-    it('should handle various page and limit combinations correctly', () => {
+    it("should handle various page and limit combinations correctly", () => {
       // Generate random page and limit combinations
       const randomCases = Array.from({ length: 20 }, () => {
         const page = Math.floor(Math.random() * 10) + 1;
@@ -68,8 +68,8 @@ describe('QueryBuilderService', () => {
 
   // Feature: query-features, Property 1: Page size limit enforcement
   // Validates: Requirements 1.1, 1.5
-  describe('Property 1: Page size limit enforcement', () => {
-    it('should never return more results than the specified limit', () => {
+  describe("Property 1: Page size limit enforcement", () => {
+    it("should never return more results than the specified limit", () => {
       // Test with various limit values including those exceeding maximum
       const testCases = [
         { page: 1, limit: 10 },
@@ -92,7 +92,7 @@ describe('QueryBuilderService', () => {
       });
     });
 
-    it('should enforce maximum limit of 100 for any pagination request', () => {
+    it("should enforce maximum limit of 100 for any pagination request", () => {
       // Generate random limits including values over 100
       const limits = [101, 150, 200, 500, 1000, 99, 100];
 
@@ -113,138 +113,219 @@ describe('QueryBuilderService', () => {
 
   // Feature: query-features, Property 4: Ascending sort order correctness
   // Validates: Requirements 2.1
-  describe('Property 4: Ascending sort order correctness', () => {
-    it('should apply ASC sort order when specified', () => {
-      const allowedFields = ['username', 'email', 'createdAt'];
+  describe("Property 4: Ascending sort order correctness", () => {
+    it("should apply ASC sort order when specified", () => {
+      const allowedFields = ["username", "email", "createdAt"];
       const testCases = [
-        { sortBy: 'username', sortOrder: 'ASC' as const },
-        { sortBy: 'email', sortOrder: 'ASC' as const },
-        { sortBy: 'createdAt', sortOrder: 'ASC' as const },
+        { sortBy: "username", sortOrder: "ASC" as const },
+        { sortBy: "email", sortOrder: "ASC" as const },
+        { sortBy: "createdAt", sortOrder: "ASC" as const },
       ];
 
       testCases.forEach(({ sortBy, sortOrder }) => {
         const mockQueryBuilder = createMockQueryBuilder();
 
-        service.applySorting(mockQueryBuilder, sortBy, sortOrder, allowedFields, 'user');
+        service.applySorting(
+          mockQueryBuilder,
+          sortBy,
+          sortOrder,
+          allowedFields,
+          "user",
+        );
 
         // Property: orderBy should be called with ASC direction
-        expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(`user.${sortBy}`, 'ASC');
+        expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(
+          `user.${sortBy}`,
+          "ASC",
+        );
       });
     });
 
-    it('should default to ASC when sortOrder is not DESC', () => {
+    it("should default to ASC when sortOrder is not DESC", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username'];
+      const allowedFields = ["username"];
 
-      service.applySorting(mockQueryBuilder, 'username', 'ASC', allowedFields, 'user');
+      service.applySorting(
+        mockQueryBuilder,
+        "username",
+        "ASC",
+        allowedFields,
+        "user",
+      );
 
-      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('user.username', 'ASC');
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(
+        "user.username",
+        "ASC",
+      );
     });
   });
 
   // Feature: query-features, Property 5: Descending sort order correctness
   // Validates: Requirements 2.2
-  describe('Property 5: Descending sort order correctness', () => {
-    it('should apply DESC sort order when specified', () => {
-      const allowedFields = ['username', 'email', 'createdAt'];
+  describe("Property 5: Descending sort order correctness", () => {
+    it("should apply DESC sort order when specified", () => {
+      const allowedFields = ["username", "email", "createdAt"];
       const testCases = [
-        { sortBy: 'username', sortOrder: 'DESC' as const },
-        { sortBy: 'email', sortOrder: 'DESC' as const },
-        { sortBy: 'createdAt', sortOrder: 'DESC' as const },
+        { sortBy: "username", sortOrder: "DESC" as const },
+        { sortBy: "email", sortOrder: "DESC" as const },
+        { sortBy: "createdAt", sortOrder: "DESC" as const },
       ];
 
       testCases.forEach(({ sortBy, sortOrder }) => {
         const mockQueryBuilder = createMockQueryBuilder();
 
-        service.applySorting(mockQueryBuilder, sortBy, sortOrder, allowedFields, 'user');
+        service.applySorting(
+          mockQueryBuilder,
+          sortBy,
+          sortOrder,
+          allowedFields,
+          "user",
+        );
 
         // Property: orderBy should be called with DESC direction
-        expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(`user.${sortBy}`, 'DESC');
+        expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(
+          `user.${sortBy}`,
+          "DESC",
+        );
       });
     });
 
-    it('should default to DESC when no sortOrder specified', () => {
+    it("should default to DESC when no sortOrder specified", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username'];
+      const allowedFields = ["username"];
 
-      service.applySorting(mockQueryBuilder, 'username', 'DESC', allowedFields, 'user');
+      service.applySorting(
+        mockQueryBuilder,
+        "username",
+        "DESC",
+        allowedFields,
+        "user",
+      );
 
-      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('user.username', 'DESC');
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(
+        "user.username",
+        "DESC",
+      );
     });
   });
 
   // Feature: query-features, Property 6: Multi-field sort precedence
   // Validates: Requirements 2.3
-  describe('Property 6: Multi-field sort precedence', () => {
-    it('should apply multiple sort fields in order', () => {
+  describe("Property 6: Multi-field sort precedence", () => {
+    it("should apply multiple sort fields in order", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username', 'email', 'createdAt'];
+      const allowedFields = ["username", "email", "createdAt"];
 
-      service.applySorting(mockQueryBuilder, 'username,email,createdAt', 'ASC', allowedFields, 'user');
+      service.applySorting(
+        mockQueryBuilder,
+        "username,email,createdAt",
+        "ASC",
+        allowedFields,
+        "user",
+      );
 
       // Property: first field uses orderBy, subsequent use addOrderBy
-      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('user.username', 'ASC');
-      expect(mockQueryBuilder.addOrderBy).toHaveBeenCalledWith('user.email', 'ASC');
-      expect(mockQueryBuilder.addOrderBy).toHaveBeenCalledWith('user.createdAt', 'ASC');
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(
+        "user.username",
+        "ASC",
+      );
+      expect(mockQueryBuilder.addOrderBy).toHaveBeenCalledWith(
+        "user.email",
+        "ASC",
+      );
+      expect(mockQueryBuilder.addOrderBy).toHaveBeenCalledWith(
+        "user.createdAt",
+        "ASC",
+      );
     });
 
-    it('should handle comma-separated fields with spaces', () => {
+    it("should handle comma-separated fields with spaces", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username', 'email'];
+      const allowedFields = ["username", "email"];
 
-      service.applySorting(mockQueryBuilder, 'username, email', 'DESC', allowedFields, 'user');
+      service.applySorting(
+        mockQueryBuilder,
+        "username, email",
+        "DESC",
+        allowedFields,
+        "user",
+      );
 
-      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('user.username', 'DESC');
-      expect(mockQueryBuilder.addOrderBy).toHaveBeenCalledWith('user.email', 'DESC');
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(
+        "user.username",
+        "DESC",
+      );
+      expect(mockQueryBuilder.addOrderBy).toHaveBeenCalledWith(
+        "user.email",
+        "DESC",
+      );
     });
   });
 
   // Feature: query-features, Property 7: Invalid sort field rejection
   // Validates: Requirements 2.4
-  describe('Property 7: Invalid sort field rejection', () => {
-    it('should reject invalid sort fields with BadRequestException', () => {
+  describe("Property 7: Invalid sort field rejection", () => {
+    it("should reject invalid sort fields with BadRequestException", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username', 'email'];
+      const allowedFields = ["username", "email"];
 
       expect(() => {
-        service.applySorting(mockQueryBuilder, 'invalidField', 'ASC', allowedFields, 'user');
-      }).toThrow('Invalid sort field: invalidField');
+        service.applySorting(
+          mockQueryBuilder,
+          "invalidField",
+          "ASC",
+          allowedFields,
+          "user",
+        );
+      }).toThrow("Invalid sort field: invalidField");
     });
 
-    it('should reject any field not in allowedFields list', () => {
+    it("should reject any field not in allowedFields list", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username'];
-      const invalidFields = ['password', 'secret', 'admin', 'role'];
+      const allowedFields = ["username"];
+      const invalidFields = ["password", "secret", "admin", "role"];
 
       invalidFields.forEach((field) => {
         expect(() => {
-          service.applySorting(mockQueryBuilder, field, 'ASC', allowedFields, 'user');
+          service.applySorting(
+            mockQueryBuilder,
+            field,
+            "ASC",
+            allowedFields,
+            "user",
+          );
         }).toThrow(`Invalid sort field: ${field}`);
       });
     });
 
-    it('should reject if any field in multi-field sort is invalid', () => {
+    it("should reject if any field in multi-field sort is invalid", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username', 'email'];
+      const allowedFields = ["username", "email"];
 
       expect(() => {
-        service.applySorting(mockQueryBuilder, 'username,invalidField', 'ASC', allowedFields, 'user');
-      }).toThrow('Invalid sort field: invalidField');
+        service.applySorting(
+          mockQueryBuilder,
+          "username,invalidField",
+          "ASC",
+          allowedFields,
+          "user",
+        );
+      }).toThrow("Invalid sort field: invalidField");
     });
   });
 
   // Feature: query-features, Property 8: Equality filter correctness
   // Validates: Requirements 3.1
-  describe('Property 8: Equality filter correctness', () => {
-    it('should apply equality filters correctly', () => {
+  describe("Property 8: Equality filter correctness", () => {
+    it("should apply equality filters correctly", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username', 'email', 'role'];
+      const allowedFields = ["username", "email", "role"];
       const filters = {
-        username: { eq: 'john' },
-        role: { eq: 'admin' },
+        username: { eq: "john" },
+        role: { eq: "admin" },
       };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       // Property: andWhere should be called for each equality filter
       expect(mockQueryBuilder.andWhere).toHaveBeenCalled();
@@ -252,12 +333,12 @@ describe('QueryBuilderService', () => {
       expect(calls.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('should handle simple equality filters without operators', () => {
+    it("should handle simple equality filters without operators", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username'];
-      const filters = { username: 'john' };
+      const allowedFields = ["username"];
+      const filters = { username: "john" };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       expect(mockQueryBuilder.andWhere).toHaveBeenCalled();
     });
@@ -265,99 +346,99 @@ describe('QueryBuilderService', () => {
 
   // Feature: query-features, Property 9: Comparison operator correctness
   // Validates: Requirements 3.2
-  describe('Property 9: Comparison operator correctness', () => {
-    it('should apply greater than operator correctly', () => {
+  describe("Property 9: Comparison operator correctness", () => {
+    it("should apply greater than operator correctly", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['age', 'createdAt'];
+      const allowedFields = ["age", "createdAt"];
       const filters = { age: { gt: 18 } };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
-      expect(calls.some(call => call[0].includes('>'))).toBe(true);
+      expect(calls.some((call) => call[0].includes(">"))).toBe(true);
     });
 
-    it('should apply less than operator correctly', () => {
+    it("should apply less than operator correctly", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['age'];
+      const allowedFields = ["age"];
       const filters = { age: { lt: 65 } };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
-      expect(calls.some(call => call[0].includes('<'))).toBe(true);
+      expect(calls.some((call) => call[0].includes("<"))).toBe(true);
     });
 
-    it('should apply gte and lte operators correctly', () => {
+    it("should apply gte and lte operators correctly", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['age'];
+      const allowedFields = ["age"];
       const filters = { age: { gte: 18, lte: 65 } };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
-      expect(calls.some(call => call[0].includes('>='))).toBe(true);
-      expect(calls.some(call => call[0].includes('<='))).toBe(true);
+      expect(calls.some((call) => call[0].includes(">="))).toBe(true);
+      expect(calls.some((call) => call[0].includes("<="))).toBe(true);
     });
   });
 
   // Feature: query-features, Property 10: Case-insensitive pattern matching
   // Validates: Requirements 3.3
-  describe('Property 10: Case-insensitive pattern matching', () => {
-    it('should apply LIKE filter with case insensitivity', () => {
+  describe("Property 10: Case-insensitive pattern matching", () => {
+    it("should apply LIKE filter with case insensitivity", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username', 'email'];
-      const filters = { username: { like: 'john' } };
+      const allowedFields = ["username", "email"];
+      const filters = { username: { like: "john" } };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
-      expect(calls.some(call => call[0].includes('LOWER'))).toBe(true);
-      expect(calls.some(call => call[0].includes('LIKE'))).toBe(true);
+      expect(calls.some((call) => call[0].includes("LOWER"))).toBe(true);
+      expect(calls.some((call) => call[0].includes("LIKE"))).toBe(true);
     });
 
-    it('should escape special characters in LIKE patterns', () => {
+    it("should escape special characters in LIKE patterns", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username'];
-      const filters = { username: { like: 'test%user_name' } };
+      const allowedFields = ["username"];
+      const filters = { username: { like: "test%user_name" } };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
       const params = calls[0][1];
       const paramValue = Object.values(params)[0] as string;
-      
+
       // Property: special characters should be escaped
-      expect(paramValue).toContain('\\%');
-      expect(paramValue).toContain('\\_');
+      expect(paramValue).toContain("\\%");
+      expect(paramValue).toContain("\\_");
     });
   });
 
   // Feature: query-features, Property 11: Multiple filter AND logic
   // Validates: Requirements 3.4
-  describe('Property 11: Multiple filter AND logic', () => {
-    it('should combine multiple filters with AND logic', () => {
+  describe("Property 11: Multiple filter AND logic", () => {
+    it("should combine multiple filters with AND logic", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username', 'email', 'role'];
+      const allowedFields = ["username", "email", "role"];
       const filters = {
-        username: { eq: 'john' },
-        email: { like: 'example.com' },
-        role: { eq: 'admin' },
+        username: { eq: "john" },
+        email: { like: "example.com" },
+        role: { eq: "admin" },
       };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       // Property: andWhere should be called for each filter
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
       expect(calls.length).toBeGreaterThanOrEqual(3);
     });
 
-    it('should handle multiple operators on same field', () => {
+    it("should handle multiple operators on same field", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['age'];
+      const allowedFields = ["age"];
       const filters = { age: { gte: 18, lte: 65 } };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
       expect(calls.length).toBe(2);
@@ -366,66 +447,71 @@ describe('QueryBuilderService', () => {
 
   // Feature: query-features, Property 12: Nested property filtering
   // Validates: Requirements 3.5
-  describe('Property 12: Nested property filtering', () => {
-    it('should handle dot notation for nested properties', () => {
+  describe("Property 12: Nested property filtering", () => {
+    it("should handle dot notation for nested properties", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['profile.age', 'profile.city'];
-      const filters = { 'profile.age': { gt: 18 } };
+      const allowedFields = ["profile.age", "profile.city"];
+      const filters = { "profile.age": { gt: 18 } };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
-      expect(calls[0][0]).toContain('profile.age');
+      expect(calls[0][0]).toContain("profile.age");
     });
   });
 
   // Feature: query-features, Property 14: Parameterized query usage
   // Validates: Requirements 5.1
-  describe('Property 14: Parameterized query usage', () => {
-    it('should use parameterized queries for all filter values', () => {
+  describe("Property 14: Parameterized query usage", () => {
+    it("should use parameterized queries for all filter values", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username', 'email'];
+      const allowedFields = ["username", "email"];
       const filters = {
-        username: { eq: 'john' },
-        email: { like: 'test' },
+        username: { eq: "john" },
+        email: { like: "test" },
       };
 
-      service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
+      service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
-      
+
       // Property: all calls should have parameter objects
-      calls.forEach(call => {
-        expect(call[0]).toContain(':');
+      calls.forEach((call) => {
+        expect(call[0]).toContain(":");
         expect(call[1]).toBeDefined();
-        expect(typeof call[1]).toBe('object');
+        expect(typeof call[1]).toBe("object");
       });
     });
   });
 
   // Feature: query-features, Property 15: Input validation before execution
   // Validates: Requirements 5.5
-  describe('Property 15: Input validation before execution', () => {
-    it('should reject invalid filter fields', () => {
+  describe("Property 15: Input validation before execution", () => {
+    it("should reject invalid filter fields", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username', 'email'];
+      const allowedFields = ["username", "email"];
 
       expect(() => {
-        service.applyFilters(mockQueryBuilder, { invalidField: 'value' }, allowedFields, 'user');
-      }).toThrow('Invalid filter field: invalidField');
+        service.applyFilters(
+          mockQueryBuilder,
+          { invalidField: "value" },
+          allowedFields,
+          "user",
+        );
+      }).toThrow("Invalid filter field: invalidField");
     });
 
-    it('should validate all fields before executing any queries', () => {
+    it("should validate all fields before executing any queries", () => {
       const mockQueryBuilder = createMockQueryBuilder();
-      const allowedFields = ['username'];
+      const allowedFields = ["username"];
       const filters = {
-        username: { eq: 'john' },
-        invalidField: { eq: 'test' },
+        username: { eq: "john" },
+        invalidField: { eq: "test" },
       };
 
       expect(() => {
-        service.applyFilters(mockQueryBuilder, filters, allowedFields, 'user');
-      }).toThrow('Invalid filter field: invalidField');
+        service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
+      }).toThrow("Invalid filter field: invalidField");
 
       // Property: no queries should be executed if validation fails
       expect(mockQueryBuilder.andWhere).not.toHaveBeenCalled();
@@ -434,21 +520,60 @@ describe('QueryBuilderService', () => {
 
   // Feature: query-features, Property 3: Complete pagination metadata
   // Validates: Requirements 1.3
-  describe('Property 3: Complete pagination metadata', () => {
-    it('should return complete and accurate pagination metadata', async () => {
+  describe("Property 3: Complete pagination metadata", () => {
+    it("should return complete and accurate pagination metadata", async () => {
       const testCases = [
-        { page: 1, limit: 10, totalCount: 50, expectedTotalPages: 5, expectedHasNext: true, expectedHasPrev: false },
-        { page: 3, limit: 10, totalCount: 50, expectedTotalPages: 5, expectedHasNext: true, expectedHasPrev: true },
-        { page: 5, limit: 10, totalCount: 50, expectedTotalPages: 5, expectedHasNext: false, expectedHasPrev: true },
-        { page: 1, limit: 20, totalCount: 100, expectedTotalPages: 5, expectedHasNext: true, expectedHasPrev: false },
-        { page: 1, limit: 10, totalCount: 5, expectedTotalPages: 1, expectedHasNext: false, expectedHasPrev: false },
+        {
+          page: 1,
+          limit: 10,
+          totalCount: 50,
+          expectedTotalPages: 5,
+          expectedHasNext: true,
+          expectedHasPrev: false,
+        },
+        {
+          page: 3,
+          limit: 10,
+          totalCount: 50,
+          expectedTotalPages: 5,
+          expectedHasNext: true,
+          expectedHasPrev: true,
+        },
+        {
+          page: 5,
+          limit: 10,
+          totalCount: 50,
+          expectedTotalPages: 5,
+          expectedHasNext: false,
+          expectedHasPrev: true,
+        },
+        {
+          page: 1,
+          limit: 20,
+          totalCount: 100,
+          expectedTotalPages: 5,
+          expectedHasNext: true,
+          expectedHasPrev: false,
+        },
+        {
+          page: 1,
+          limit: 10,
+          totalCount: 5,
+          expectedTotalPages: 1,
+          expectedHasNext: false,
+          expectedHasPrev: false,
+        },
       ];
 
       for (const testCase of testCases) {
-        const mockData = Array(Math.min(testCase.limit, testCase.totalCount)).fill({});
+        const mockData = Array(
+          Math.min(testCase.limit, testCase.totalCount),
+        ).fill({});
         const mockQueryBuilder = {
           ...createMockQueryBuilder(),
-          getManyAndCount: jest.fn().mockResolvedValue([mockData, testCase.totalCount]),
+          getManyAndCount: jest
+            .fn()
+            .mockResolvedValue([mockData, testCase.totalCount]),
         } as any;
 
         const queryDto = { page: testCase.page, limit: testCase.limit };
@@ -465,7 +590,7 @@ describe('QueryBuilderService', () => {
       }
     });
 
-    it('should calculate totalPages correctly for various scenarios', async () => {
+    it("should calculate totalPages correctly for various scenarios", async () => {
       const scenarios = [
         { totalCount: 0, limit: 10, expectedPages: 0 },
         { totalCount: 1, limit: 10, expectedPages: 1 },
@@ -478,10 +603,15 @@ describe('QueryBuilderService', () => {
       for (const scenario of scenarios) {
         const mockQueryBuilder = {
           ...createMockQueryBuilder(),
-          getManyAndCount: jest.fn().mockResolvedValue([[], scenario.totalCount]),
+          getManyAndCount: jest
+            .fn()
+            .mockResolvedValue([[], scenario.totalCount]),
         } as any;
 
-        const result = await service.paginate(mockQueryBuilder, { page: 1, limit: scenario.limit });
+        const result = await service.paginate(mockQueryBuilder, {
+          page: 1,
+          limit: scenario.limit,
+        });
 
         expect(result.metadata.totalPages).toBe(scenario.expectedPages);
       }
@@ -490,29 +620,37 @@ describe('QueryBuilderService', () => {
 
   // Feature: query-features, Property 16: Consistent response structure
   // Validates: Requirements 6.4
-  describe('Property 16: Consistent response structure', () => {
-    it('should always return data and metadata fields', async () => {
+  describe("Property 16: Consistent response structure", () => {
+    it("should always return data and metadata fields", async () => {
       const mockQueryBuilder = {
         ...createMockQueryBuilder(),
-        getManyAndCount: jest.fn().mockResolvedValue([[{ id: 1 }, { id: 2 }], 2]),
+        getManyAndCount: jest
+          .fn()
+          .mockResolvedValue([[{ id: 1 }, { id: 2 }], 2]),
       } as any;
 
-      const result = await service.paginate(mockQueryBuilder, { page: 1, limit: 10 });
+      const result = await service.paginate(mockQueryBuilder, {
+        page: 1,
+        limit: 10,
+      });
 
       // Property: response must have data and metadata
-      expect(result).toHaveProperty('data');
-      expect(result).toHaveProperty('metadata');
+      expect(result).toHaveProperty("data");
+      expect(result).toHaveProperty("metadata");
       expect(Array.isArray(result.data)).toBe(true);
-      expect(typeof result.metadata).toBe('object');
+      expect(typeof result.metadata).toBe("object");
     });
 
-    it('should return consistent structure even with empty results', async () => {
+    it("should return consistent structure even with empty results", async () => {
       const mockQueryBuilder = {
         ...createMockQueryBuilder(),
         getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
       } as any;
 
-      const result = await service.paginate(mockQueryBuilder, { page: 1, limit: 10 });
+      const result = await service.paginate(mockQueryBuilder, {
+        page: 1,
+        limit: 10,
+      });
 
       expect(result.data).toEqual([]);
       expect(result.metadata).toBeDefined();
@@ -520,16 +658,26 @@ describe('QueryBuilderService', () => {
       expect(result.metadata.totalPages).toBe(0);
     });
 
-    it('should include all required metadata fields', async () => {
+    it("should include all required metadata fields", async () => {
       const mockQueryBuilder = {
         ...createMockQueryBuilder(),
         getManyAndCount: jest.fn().mockResolvedValue([[{ id: 1 }], 1]),
       } as any;
 
-      const result = await service.paginate(mockQueryBuilder, { page: 1, limit: 10 });
+      const result = await service.paginate(mockQueryBuilder, {
+        page: 1,
+        limit: 10,
+      });
 
-      const requiredFields = ['page', 'limit', 'totalCount', 'totalPages', 'hasNextPage', 'hasPreviousPage'];
-      requiredFields.forEach(field => {
+      const requiredFields = [
+        "page",
+        "limit",
+        "totalCount",
+        "totalPages",
+        "hasNextPage",
+        "hasPreviousPage",
+      ];
+      requiredFields.forEach((field) => {
         expect(result.metadata).toHaveProperty(field);
       });
     });
