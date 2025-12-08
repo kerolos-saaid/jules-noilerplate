@@ -36,6 +36,7 @@ export class SeedingService {
       const password_hash = await bcrypt.hash("12345678", 10);
       adminUser = await this.usersService.create({
         username: "admin",
+        email: "admin@example.com",
         password_hash,
         roles: [adminRole],
       });
