@@ -9,7 +9,7 @@ import { RequestIdInterceptor } from "./core/interceptors/request-id.interceptor
 import { ClsService } from "nestjs-cls";
 import { QueryExceptionFilter } from "./common/filters/query-exception.filter";
 
-async function setupSwagger(app) {
+function setupSwagger(app: any): void {
   const config = new DocumentBuilder()
     .setTitle("NestJS Boilerplate API")
     .setDescription("The NestJS Boilerplate API description")

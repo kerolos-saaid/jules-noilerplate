@@ -10,4 +10,4 @@ async function bootstrap() {
   return;
 }
 
-bootstrap();
+void bootstrap();
