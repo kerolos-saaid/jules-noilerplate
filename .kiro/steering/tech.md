@@ -1,91 +1,113 @@
-# Technology Stack
+---
+inclusion: always
+---
 
-## Core Framework
-- **NestJS 11** - Progressive Node.js framework
-- **TypeScript 5.9** - Type-safe JavaScript
-- **Node.js** - Runtime environment
+# Technology Stack & Dependencies
 
-## Database & ORM
-- **PostgreSQL** - Primary database
-- **TypeORM 0.3** - ORM with migration support
-- **Redis** - Caching and job queue backend
+## Core Stack
+- **NestJS 11** with TypeScript 5.9
+- **PostgreSQL** + TypeORM 0.3 for persistence
+- **Redis** (ioredis) for caching and queues
+- **Node.js** runtime
 
-## Authentication & Authorization
-- **Passport** - Authentication middleware
-- **JWT** - Token-based authentication with refresh tokens
-- **CASL** - Policy-based authorization
-- **bcrypt** - Password hashing
+## Key Dependencies by Category
 
-## Performance & Caching
-- **Redis (ioredis)** - Caching layer
-- **BullMQ** - Background job processing
-- **@nestjs/throttler** - Rate limiting
-- **compression** - Gzip compression
+**Authentication/Authorization**
+- Passport + JWT (with refresh tokens)
+- CASL for policy-based authorization
+- bcrypt for password hashing
 
-## Observability
-- **nestjs-pino** - Structured JSON logging
-- **@nestjs/terminus** - Health checks
-- **prom-client** - Prometheus metrics
-- **Swagger** - API documentation (dev only)
+**Validation**
+- class-validator + class-transformer for DTOs
+- Zod for environment variable schemas (in `src/config/env.schema.ts`)
 
-## Validation & Configuration
-- **Zod** - Schema validation for environment variables
-- **class-validator** - DTO validation
-- **class-transformer** - Object transformation
+**Observability**
+- nestjs-pino for structured JSON logging
+- prom-client for Prometheus metrics (exposed at `/metrics`)
+- @nestjs/terminus for health checks (at `/health`)
 
-## Additional Features
-- **nestjs-cls** - Request-scoped context
-- **nestjs-i18n** - Internationalization
-- **helmet** - Security headers
-- **multer / multer-s3** - File uploads
-- **opossum** - Circuit breaker pattern (industry standard)
-- **@nestjs/schedule** - Cron jobs
-- **@nestjs/event-emitter** - Event-driven architecture
+**Performance/Resilience**
+- BullMQ for background jobs
+- @nestjs/throttler for rate limiting
+- opossum for circuit breaker pattern (use `@WithCircuitBreaker()` decorator)
+- compression middleware for gzip
 
-## Development Tools
-- **Jest** - Testing framework
-- **ESLint** - Linting with TypeScript support
-- **Prettier** - Code formatting
-- **Docker & Docker Compose** - Containerization
+**Additional Libraries**
+- nestjs-cls for request-scoped context
+- nestjs-i18n for translations
+- helmet for security headers
+- multer/multer-s3 for file uploads
+- @nestjs/schedule for cron jobs
+- @nestjs/event-emitter for domain events
 
-## Common Commands
+## Package Installation Rules
 
-### Development
-```bash
-npm run start:dev          # Start in watch mode
-npm run start:debug        # Start with debugger
-npm run build              # Build for production
-npm run start:prod         # Run production build
-```
+When adding new dependencies:
+- Use `npm install <package>` (not yarn or pnpm)
+- Add production dependencies with `npm install <package>`
+- Add dev dependencies with `npm install -D <package>`
+- Prefer official NestJS packages when available (e.g., `@nestjs/terminus` over custom health checks)
+- Check package.json for existing similar functionality before adding new packages
 
-### Testing
-```bash
-npm test                   # Run unit tests
-npm run test:watch         # Run tests in watch mode
-npm run test:cov           # Run tests with coverage
-npm run test:e2e           # Run end-to-end tests
-```
+## Common npm Scripts
 
-### Database
-```bash
-npm run migration:generate # Generate migration from entities
-npm run migration:run      # Run pending migrations
-npm run seed               # Seed database with initial data
-```
+**Development**
+- `npm run start:dev` - Start with hot reload (use this for development)
+- `npm run start:debug` - Start with debugger attached
+- `npm run build` - Compile TypeScript to JavaScript
+- `npm run start:prod` - Run production build
 
-### Code Quality
-```bash
-npm run lint               # Lint and fix code
-npm run format             # Format code with Prettier
-```
+**Testing**
+- `npm test` - Run unit tests once
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:cov` - Generate coverage report
+- `npm run test:e2e` - Run end-to-end tests
 
-### Docker
-```bash
-docker-compose up --build  # Start all services
-docker-compose down        # Stop all services
-```
+**Database**
+- `npm run migration:generate` - Auto-generate migration from entity changes
+- `npm run migration:run` - Apply pending migrations
+- `npm run seed` - Populate database with initial data
 
-## Build System
-- **NestJS CLI** - Project scaffolding and build
-- **TypeScript Compiler** - Transpilation to JavaScript
-- **Multi-stage Dockerfile** - Optimized production builds
+**Code Quality**
+- `npm run lint` - Run ESLint and auto-fix issues
+- `npm run format` - Format code with Prettier
+
+**Docker**
+- `docker-compose up --build` - Start PostgreSQL, Redis, Prometheus, Grafana
+- `docker-compose down` - Stop all services
+
+## Technology-Specific Patterns
+
+**TypeORM**
+- Use repository pattern via `@InjectRepository(Entity)`
+- Migrations in `src/database/migrations/` with timestamp prefix
+- All entities extend `BaseEntity` from `src/core/entity/base.entity.ts`
+- Use QueryBuilder for complex queries via `QueryBuilderService`
+
+**Redis/Caching**
+- Access via `CacheService` wrapper (not direct ioredis client)
+- Cache keys should be namespaced (e.g., `user:${id}`)
+- Set appropriate TTLs for cached data
+
+**Validation**
+- DTOs use class-validator decorators (`@IsString()`, `@IsEmail()`, etc.)
+- Environment variables validated via Zod schema at startup
+- Use `@IsAllowedField()` decorator to whitelist query fields
+
+**Logging**
+- Use injected logger: `constructor(private readonly logger: Logger) {}`
+- Log levels: error, warn, info, debug
+- Structured logging automatically includes request ID and context
+
+**Testing**
+- Jest for unit and E2E tests
+- Mock external dependencies (DB, Redis, APIs) in unit tests
+- Use test database for E2E tests
+- Co-locate unit tests with source files (`*.spec.ts`)
+
+## Build & Deployment
+
+- TypeScript compiled to JavaScript in `dist/` directory
+- Multi-stage Dockerfile for optimized production images
+- Environment variables required (see `.example.env`)
+- Graceful shutdown handling built-in

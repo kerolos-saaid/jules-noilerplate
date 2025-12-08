@@ -116,8 +116,8 @@ graph TB
 ### 🔄 Async Operations
 - **BullMQ**: Robust job queue for background processing
 - **Cron Jobs**: Scheduled tasks with `@nestjs/schedule`
-- **Event Emitter**: Decoupled event-driven architecture
-- **Circuit Breaker**: Automatic failure detection with Opossum
+- **Event Emitter**: Decoupled event-driven architecture with `@nestjs/event-emitter`
+- **Circuit Breaker**: Automatic failure detection with Opossum via `@WithCircuitBreaker()` decorator
 
 ### 🛠️ Developer Experience
 - **File Uploads**: Flexible upload handling (local filesystem or S3)
@@ -339,15 +339,15 @@ All entities extend `BaseEntity` which provides:
 ```
 
 ### Query System
-Built-in support for advanced querying:
+Built-in support for advanced querying via `QueryDto` and `QueryBuilderService`:
 ```bash
 # Pagination
 GET /api/v1/users?page=1&limit=20
 
-# Sorting
+# Sorting (whitelist fields with @IsAllowedField decorator)
 GET /api/v1/users?sortBy=createdAt&sortOrder=DESC
 
-# Filtering
+# Filtering (supports: eq, ne, gt, lt, gte, lte, like, in, between)
 GET /api/v1/users?filters[role][eq]=admin
 GET /api/v1/users?filters[email][like]=@company.com
 GET /api/v1/users?filters[createdAt][gte]=2024-01-01
@@ -356,10 +356,13 @@ GET /api/v1/users?filters[createdAt][gte]=2024-01-01
 GET /api/v1/users?page=2&limit=50&sortBy=username&filters[role][in]=admin,moderator
 ```
 
+Use `@IsAllowedField()` decorator in DTOs to whitelist filterable/sortable fields for security.
+
 ### Authorization Layers
-1. **JWT Guard**: Validates authentication token
-2. **Roles Guard**: Checks user roles (RBAC)
-3. **Policies Guard**: Enforces CASL policies (fine-grained)
+Guards execute in this order:
+1. **JWT Guard**: Validates authentication token (applied globally, bypass with `@Public()`)
+2. **Roles Guard**: Checks user roles via `@Roles()` decorator (RBAC)
+3. **Policies Guard**: Enforces CASL policies via `@CheckPolicies()` decorator (fine-grained)
 4. **Ownership Guard**: Validates resource ownership
 
 ## 📖 Documentation
@@ -397,12 +400,16 @@ npm run test:e2e
    nest g service modules/posts
    ```
 
-2. Create entity in `modules/posts/entities/post.entity.ts`
-3. Create DTOs in `modules/posts/dto/`
-4. Add authorization guards to controller
-5. Generate and run migration
+2. Create entity in `modules/posts/entities/post.entity.ts` (must extend `BaseEntity`)
+3. Create DTOs in `modules/posts/dto/` (extend `QueryDto` for list endpoints)
+4. Add authorization guards to controller (JWT is applied globally)
+5. Generate and run migration:
+   ```bash
+   npm run migration:generate -- src/database/migrations/AddPostsTable
+   npm run migration:run
+   ```
 
-### Creating a Database Migration
+### Working with Migrations
 
 ```bash
 # Generate migration from entity changes
@@ -410,7 +417,12 @@ npm run migration:generate -- src/database/migrations/AddPostsTable
 
 # Run pending migrations
 npm run migration:run
+
+# Revert last migration
+npm run migration:revert
 ```
+
+All entities must extend `BaseEntity` from `src/core/entity/base.entity.ts` for audit tracking.
 
 ### Adding a Background Job
 
@@ -583,11 +595,14 @@ AWS_S3_BUCKET=your-bucket
 
 ### Code Style
 
-- Follow the existing code structure
+- Follow the existing code structure and naming conventions (see steering rules)
 - Use TypeScript strict mode
-- Write unit tests for new features
+- Write unit tests for new features (co-locate `*.spec.ts` with source files)
 - Run `npm run lint` before committing
 - Use conventional commit messages
+- Use `@/` import alias for absolute imports from `src/`
+- All entities must extend `BaseEntity`
+- Business logic belongs in services, not controllers
 
 ## 📝 License
 

@@ -1,123 +1,281 @@
-# Project Structure
+---
+inclusion: always
+---
 
-## Directory Organization
+# Project Structure & Architecture
 
+## File Placement Rules
+
+When creating new files, follow this structure:
+
+- `src/config/` - Configuration and environment validation (Zod schemas, TypeORM config)
+- `src/core/` - Framework-level shared code (base entities, global interceptors, TypeORM subscribers)
+- `src/common/` - Application-level shared code (decorators, DTOs, filters, services used across modules)
+- `src/database/migrations/` - TypeORM migration files only
+- `src/i18n/{locale}/` - Translation files organized by locale
+- `src/modules/{feature}/` - Feature modules (domain-driven organization)
+
+Feature module structure (create these subdirectories as needed):
 ```
-src/
-├── config/              # Configuration files
-│   ├── env.schema.ts    # Zod schema for environment validation
-│   └── typeorm.config.ts # TypeORM configuration
-├── core/                # Core/shared components
-│   ├── entity/          # Base entities (BaseEntity with audit fields)
-│   ├── interceptors/    # Global interceptors (metrics, request-id)
-│   └── subscribers/     # TypeORM subscribers (audit logging)
-├── common/              # Common utilities and shared code
-│   ├── decorators/      # Custom decorators
-│   ├── dto/             # Shared DTOs (QueryDto, PaginationQueryDto)
-│   ├── enums/           # Shared enums (FilterOperator)
-│   ├── filters/         # Exception filters (QueryExceptionFilter)
-│   ├── interfaces/      # Shared interfaces (PaginatedResponse)
-│   └── services/        # Shared services (QueryBuilderService)
-├── database/
-│   └── migrations/      # TypeORM migrations
-├── i18n/                # Internationalization files
-│   └── en/              # English translations
-├── modules/             # Feature modules (domain-driven)
-│   ├── auth/            # Authentication & authorization
-│   │   ├── casl/        # CASL ability factory and enums
-│   │   ├── decorators/  # Auth decorators (@Public, @Roles, @CheckPolicies)
-│   │   ├── dto/         # Auth DTOs
-│   │   ├── guards/      # Auth guards (JWT, roles, policies, ownership)
-│   │   ├── interfaces/  # Auth interfaces
-│   │   └── strategies/  # Passport strategies (JWT, local, refresh)
-│   ├── cache/           # Redis caching service
-│   ├── file-upload/     # File upload handling
-│   ├── health/          # Health check endpoints
-│   │   └── indicators/  # Custom health indicators (Redis)
-│   ├── prometheus/      # Prometheus metrics
-│   ├── seeding/         # Database seeding
-│   └── users/           # User management
-│       ├── dto/         # User DTOs
-│       ├── entities/    # User and Role entities
-│       └── enums/       # User enums (Role)
-├── app.module.ts        # Root module
-├── app.controller.ts    # Root controller
-├── app.service.ts       # Root service
-├── main.ts              # Application entry point
-└── seed.ts              # Seeding script entry point
+src/modules/{feature}/
+├── {feature}.module.ts      # REQUIRED: Module definition
+├── {feature}.controller.ts  # HTTP endpoints
+├── {feature}.service.ts     # Business logic
+├── {feature}.service.spec.ts # Unit tests
+├── dto/                     # Request/response DTOs
+├── entities/                # TypeORM entities
+├── enums/                   # Feature-specific enums
+├── interfaces/              # TypeScript interfaces
+├── guards/                  # Custom guards
+├── decorators/              # Custom decorators
+└── README.md                # Feature documentation (optional)
 ```
 
-## Architectural Patterns
+## Naming Conventions (STRICT)
 
-### Module Structure
-Each feature module follows a consistent structure:
-- `*.module.ts` - Module definition with imports/providers
-- `*.controller.ts` - HTTP endpoints and route handlers
-- `*.service.ts` - Business logic
-- `dto/` - Data Transfer Objects for validation
-- `entities/` - TypeORM entities
-- `enums/` - Module-specific enumerations
-- `interfaces/` - TypeScript interfaces
+- Files: `kebab-case.suffix.ts` (e.g., `user.entity.ts`, `auth.service.ts`, `users-query.dto.ts`)
+- Classes: `PascalCase` + suffix (e.g., `UserEntity`, `AuthService`, `CreateUserDto`)
+- Interfaces: `PascalCase` (e.g., `PaginatedResponse`, `PolicyHandler`)
+- Enums: `PascalCase` (e.g., `Role`, `Action`, `FilterOperator`)
+- Constants: `UPPER_SNAKE_CASE`
+- Variables/Functions: `camelCase`
 
-### Naming Conventions
-- **Files**: kebab-case (e.g., `user.entity.ts`, `auth.service.ts`)
-- **Classes**: PascalCase (e.g., `UserEntity`, `AuthService`)
-- **Interfaces**: PascalCase with descriptive names (e.g., `PaginatedResponse`)
-- **Enums**: PascalCase (e.g., `Role`, `Action`)
-- **Constants**: UPPER_SNAKE_CASE
-- **Variables/Functions**: camelCase
+File suffix patterns:
+- `*.entity.ts` - TypeORM entities
+- `*.dto.ts` - Data Transfer Objects
+- `*.service.ts` - Services
+- `*.controller.ts` - Controllers
+- `*.module.ts` - Modules
+- `*.guard.ts` - Guards
+- `*.decorator.ts` - Decorators
+- `*.interceptor.ts` - Interceptors
+- `*.filter.ts` - Exception filters
+- `*.spec.ts` - Unit tests (co-located with source)
+- `*.e2e-spec.ts` - E2E tests (in `test/` directory)
 
-### Entity Conventions
-- All entities extend `BaseEntity` which provides:
-  - `id` (UUID primary key)
-  - `createdAt` / `updatedAt` timestamps
-  - `deletedAt` for soft deletes
-  - `createdBy` / `updatedBy` for audit tracking
-- Use decorators from TypeORM (`@Entity`, `@Column`, `@ManyToOne`, etc.)
-- Define relationships explicitly with proper cascade options
+## Entity Pattern (MANDATORY)
 
-### DTO Conventions
-- Use `class-validator` decorators for validation
-- Extend base DTOs when applicable (e.g., `QueryDto` for pagination/filtering)
-- Separate DTOs for create, update, and query operations
-- Use `@ApiProperty()` decorators for Swagger documentation
+All entities MUST extend `BaseEntity` from `src/core/entity/base.entity.ts`:
 
-### Service Layer
-- Services contain business logic, not controllers
-- Use dependency injection for all dependencies
-- Services should be testable in isolation
-- Use TypeORM repositories for database access
+```typescript
+import { BaseEntity } from '@/core/entity/base.entity';
+import { Entity, Column } from 'typeorm';
 
-### Controller Layer
-- Controllers handle HTTP concerns only (routing, request/response)
-- Apply guards at controller or method level (`@UseGuards()`)
-- Use DTOs for request validation
-- Return plain objects or entities (NestJS handles serialization)
+@Entity('table_name')
+export class MyEntity extends BaseEntity {
+  @Column()
+  myField: string;
+}
+```
 
-### Guards & Decorators
-- `@Public()` - Bypass JWT authentication
-- `@Roles()` - Require specific roles
-- `@CheckPolicies()` - Enforce CASL policies
-- Guards execute in order: JWT → Roles → Policies → Ownership
+BaseEntity provides: `id` (UUID), `createdAt`, `updatedAt`, `deletedAt`, `createdBy`, `updatedBy`
 
-### Configuration
-- All environment variables validated via Zod schema in `config/env.schema.ts`
-- Access config via `ConfigService` injection
-- Never hardcode sensitive values
+## DTO Pattern
 
-### Testing
-- Unit tests: `*.spec.ts` files alongside source
-- E2E tests: `test/` directory
-- Use Jest for all testing
-- Mock external dependencies in unit tests
+For list/query endpoints, extend `QueryDto` from `src/common/dto/query.dto.ts`:
 
-## Key Design Principles
+```typescript
+import { QueryDto } from '@/common/dto/query.dto';
+import { IsAllowedField } from '@/common/decorators/is-allowed-field.decorator';
 
-1. **Modular Architecture** - Features organized as self-contained modules
-2. **Dependency Injection** - Use NestJS DI container for all dependencies
-3. **Type Safety** - Leverage TypeScript for compile-time safety
-4. **Validation** - Validate all inputs (environment, DTOs, queries)
-5. **Security First** - Authentication/authorization on all non-public routes
-6. **Observability** - Structured logging, metrics, and health checks
-7. **Separation of Concerns** - Controllers, services, and repositories have distinct responsibilities
-8. **Domain-Driven Design** - Modules organized around business domains
+export class UsersQueryDto extends QueryDto {
+  @IsAllowedField(['email', 'username', 'role'])
+  declare filterBy?: string;
+
+  @IsAllowedField(['createdAt', 'email'])
+  declare sortBy?: string;
+}
+```
+
+Use `@IsAllowedField()` to whitelist filterable/sortable fields.
+
+For create/update operations, create separate DTOs with `class-validator` decorators:
+
+```typescript
+import { IsEmail, IsString, MinLength } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+
+export class CreateUserDto {
+  @ApiProperty()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(8)
+  password: string;
+}
+```
+
+## Service Pattern
+
+Services contain business logic and use dependency injection:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+@Injectable()
+export class MyService {
+  constructor(
+    @InjectRepository(MyEntity)
+    private readonly myRepository: Repository<MyEntity>,
+  ) {}
+
+  async findAll() {
+    return this.myRepository.find();
+  }
+}
+```
+
+For paginated queries, use `QueryBuilderService`:
+
+```typescript
+import { QueryBuilderService } from '@/common/services/query-builder.service';
+
+@Injectable()
+export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly queryBuilder: QueryBuilderService,
+  ) {}
+
+  async findAll(query: UsersQueryDto) {
+    return this.queryBuilder.paginate(this.userRepository, query);
+  }
+}
+```
+
+## Controller Pattern
+
+Controllers handle HTTP routing only, delegate logic to services:
+
+```typescript
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { Roles } from '@/modules/auth/decorators/roles.decorator';
+import { RolesGuard } from '@/modules/auth/guards/roles.guard';
+import { Role } from '@/modules/users/enums/role.enum';
+
+@Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  @Roles(Role.ADMIN)
+  findAll(@Query() query: UsersQueryDto) {
+    return this.usersService.findAll(query);
+  }
+
+  @Post()
+  create(@Body() dto: CreateUserDto) {
+    return this.usersService.create(dto);
+  }
+}
+```
+
+## Module Pattern
+
+Register providers, controllers, and imports:
+
+```typescript
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([MyEntity])],
+  controllers: [MyController],
+  providers: [MyService],
+  exports: [MyService], // Export if used by other modules
+})
+export class MyModule {}
+```
+
+## Authentication & Authorization
+
+Default: All routes require JWT authentication via global `JwtAuthGuard`.
+
+To bypass authentication:
+```typescript
+import { Public } from '@/modules/auth/decorators/public.decorator';
+
+@Public()
+@Get('public-endpoint')
+publicRoute() {}
+```
+
+Role-based access:
+```typescript
+import { Roles } from '@/modules/auth/decorators/roles.decorator';
+import { RolesGuard } from '@/modules/auth/guards/roles.guard';
+
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.ADMIN, Role.MODERATOR)
+@Delete(':id')
+deleteUser() {}
+```
+
+Policy-based access (CASL):
+```typescript
+import { CheckPolicies } from '@/modules/auth/decorators/check-policies.decorator';
+import { PoliciesGuard } from '@/modules/auth/guards/policies.guard';
+
+@UseGuards(JwtAuthGuard, PoliciesGuard)
+@CheckPolicies((ability) => ability.can(Action.UPDATE, User))
+@Patch(':id')
+updateUser() {}
+```
+
+Guard execution order: JWT → Roles → Policies → Ownership
+
+## Configuration Access
+
+Never hardcode values. Use `ConfigService`:
+
+```typescript
+import { ConfigService } from '@nestjs/config';
+
+@Injectable()
+export class MyService {
+  constructor(private readonly configService: ConfigService) {}
+
+  getApiKey() {
+    return this.configService.get<string>('API_KEY');
+  }
+}
+```
+
+All environment variables are validated via Zod schema in `src/config/env.schema.ts`.
+
+## Import Path Aliases
+
+Use `@/` alias for absolute imports from `src/`:
+
+```typescript
+import { BaseEntity } from '@/core/entity/base.entity';
+import { QueryDto } from '@/common/dto/query.dto';
+import { User } from '@/modules/users/entities/user.entity';
+```
+
+## Testing Requirements
+
+- Unit tests: Co-locate `*.spec.ts` files with source files
+- E2E tests: Place in `test/` directory as `*.e2e-spec.ts`
+- Mock external dependencies (databases, APIs, Redis) in unit tests
+- Use real dependencies in E2E tests (via test database)
+
+## Key Architectural Rules
+
+1. Business logic belongs in services, NOT controllers
+2. All entities MUST extend `BaseEntity`
+3. All routes require authentication unless marked `@Public()`
+4. Use `QueryDto` for paginated/filtered list endpoints
+5. Use `QueryBuilderService` for dynamic query construction
+6. Validate all inputs with DTOs and `class-validator`
+7. Use dependency injection for all dependencies
+8. Return plain objects/entities from controllers (NestJS serializes automatically)
+9. Place feature-specific code in `src/modules/{feature}/`
+10. Place shared code in `src/common/` or `src/core/`
