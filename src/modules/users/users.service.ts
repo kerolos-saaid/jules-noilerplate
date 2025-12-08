@@ -159,13 +159,15 @@ export class UsersService {
    * This method creates a new user.
    *
    * @remarks
-   * This method deletes the `users` key from the cache to ensure that the
+   * This method deletes all cached user queries to ensure that the
    * cached list of users is up-to-date.
    */
   async create(user: Partial<User>): Promise<User> {
     const newUser = this.userRepository.create(user);
     const savedUser = await this.userRepository.save(newUser);
-    await this.cacheService.del("users");
+    // Invalidate all user-related cache keys
+    await this.cacheService.delPattern("users:*");
+    await this.cacheService.delPattern("users");
     return savedUser;
   }
 }

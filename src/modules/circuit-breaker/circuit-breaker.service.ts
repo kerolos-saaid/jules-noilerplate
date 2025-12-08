@@ -51,7 +51,8 @@ export class CircuitBreakerService {
     });
 
     breaker.on("failure", (error) => {
-      this.logger.error(`Circuit breaker [${name}] failure: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Circuit breaker [${name}] failure: ${errorMessage}`);
     });
 
     this.breakers.set(name, breaker);
