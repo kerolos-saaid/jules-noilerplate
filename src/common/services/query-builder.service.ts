@@ -219,8 +219,8 @@ export class QueryBuilderService {
     if (typeof pattern !== "string") {
       return pattern;
     }
-    // Escape special SQL LIKE characters: % and _
-    return pattern.replace(/[%_]/g, "\\$&");
+    // Escape backslash first, then special SQL LIKE characters: % and _
+    return pattern.replace(/\\/g, "\\\\").replace(/[%_]/g, "\\$&");
   }
 
   /**

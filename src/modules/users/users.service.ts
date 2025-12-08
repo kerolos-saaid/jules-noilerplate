@@ -165,9 +165,8 @@ export class UsersService {
   async create(user: Partial<User>): Promise<User> {
     const newUser = this.userRepository.create(user);
     const savedUser = await this.userRepository.save(newUser);
-    // Invalidate all user-related cache keys
-    await this.cacheService.delPattern("users:*");
-    await this.cacheService.delPattern("users");
+    // Invalidate all user-related cache keys (both 'users' and 'users:*')
+    await this.cacheService.delPattern("users*");
     return savedUser;
   }
 }

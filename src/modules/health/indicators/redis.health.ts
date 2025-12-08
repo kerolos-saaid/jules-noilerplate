@@ -18,7 +18,8 @@ export class RedisHealthIndicator extends HealthIndicator {
       await this.redis.ping();
       return this.getStatus(key, true);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new HealthCheckError(
         "RedisHealthIndicator failed",
         this.getStatus(key, false, { message: errorMessage }),
