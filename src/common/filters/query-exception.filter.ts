@@ -5,9 +5,9 @@ import {
   HttpException,
   HttpStatus,
   BadRequestException,
-} from '@nestjs/common';
-import { Response } from 'express';
-import { QueryFailedError } from 'typeorm';
+} from "@nestjs/common";
+import { Response } from "express";
+import { QueryFailedError } from "typeorm";
 
 /**
  * Standardized error response structure
@@ -33,8 +33,8 @@ export class QueryExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Internal server error';
-    let error = 'InternalServerError';
+    let message = "Internal server error";
+    let error = "InternalServerError";
     let details: any = undefined;
 
     // Handle HTTP exceptions (including validation errors)
@@ -42,49 +42,49 @@ export class QueryExceptionFilter implements ExceptionFilter {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      if (typeof exceptionResponse === 'object') {
+      if (typeof exceptionResponse === "object") {
         const responseObj = exceptionResponse as any;
         message = responseObj.message || exception.message;
         error = responseObj.error || exception.name;
-        
+
         // Include validation details if present
         if (Array.isArray(responseObj.message)) {
           details = responseObj.message;
         }
       } else {
-        message = exceptionResponse as string;
+        message = exceptionResponse;
         error = exception.name;
       }
     }
     // Handle TypeORM query errors
     else if (exception instanceof QueryFailedError) {
       status = HttpStatus.BAD_REQUEST;
-      error = 'QueryError';
-      message = 'Database query failed';
-      
+      error = "QueryError";
+      message = "Database query failed";
+
       // Extract useful information from the query error
       const queryError = exception as any;
-      
+
       // Handle specific database errors
-      if (queryError.code === '23505') {
+      if (queryError.code === "23505") {
         // Unique constraint violation
         status = HttpStatus.CONFLICT;
-        error = 'ConflictError';
-        message = 'Resource already exists';
-      } else if (queryError.code === '23503') {
+        error = "ConflictError";
+        message = "Resource already exists";
+      } else if (queryError.code === "23503") {
         // Foreign key constraint violation
         status = HttpStatus.BAD_REQUEST;
-        error = 'ReferenceError';
-        message = 'Referenced resource does not exist';
-      } else if (queryError.code === '22P02') {
+        error = "ReferenceError";
+        message = "Referenced resource does not exist";
+      } else if (queryError.code === "22P02") {
         // Invalid text representation
         status = HttpStatus.BAD_REQUEST;
-        error = 'ValidationError';
-        message = 'Invalid data format';
+        error = "ValidationError";
+        message = "Invalid data format";
       }
-      
+
       // In development, include more details
-      if (process.env.NODE_ENV !== 'production') {
+      if (process.env.NODE_ENV !== "production") {
         details = {
           code: queryError.code,
           detail: queryError.detail,
@@ -96,9 +96,9 @@ export class QueryExceptionFilter implements ExceptionFilter {
     else if (exception instanceof Error) {
       message = exception.message;
       error = exception.name;
-      
+
       // In development, include stack trace
-      if (process.env.NODE_ENV !== 'production') {
+      if (process.env.NODE_ENV !== "production") {
         details = {
           stack: exception.stack,
         };

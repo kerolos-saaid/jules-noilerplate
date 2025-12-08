@@ -1,7 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { HealthIndicator, HealthIndicatorResult, HealthCheckError } from '@nestjs/terminus';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
+import { Injectable } from "@nestjs/common";
+import {
+  HealthIndicator,
+  HealthIndicatorResult,
+  HealthCheckError,
+} from "@nestjs/terminus";
+import { InjectRedis } from "@nestjs-modules/ioredis";
+import Redis from "ioredis";
 
 @Injectable()
 export class RedisHealthIndicator extends HealthIndicator {
@@ -14,7 +18,12 @@ export class RedisHealthIndicator extends HealthIndicator {
       await this.redis.ping();
       return this.getStatus(key, true);
     } catch (error) {
-      throw new HealthCheckError('RedisHealthIndicator failed', this.getStatus(key, false, { message: error.message }));
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      throw new HealthCheckError(
+        "RedisHealthIndicator failed",
+        this.getStatus(key, false, { message: errorMessage }),
+      );
     }
   }
 }

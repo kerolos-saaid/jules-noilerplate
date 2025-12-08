@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import CircuitBreaker from 'opossum';
-import { CircuitBreakerOptions } from './interfaces/circuit-breaker-options.interface';
+import { Injectable, Logger } from "@nestjs/common";
+import CircuitBreaker from "opossum";
+import { CircuitBreakerOptions } from "./interfaces/circuit-breaker-options.interface";
 
 @Injectable()
 export class CircuitBreakerService {
@@ -32,26 +32,28 @@ export class CircuitBreakerService {
       ...options,
     };
 
-    const breaker = new CircuitBreaker(action, defaultOptions) as CircuitBreaker<
-      Parameters<T>,
-      ReturnType<T>
-    >;
+    const breaker = new CircuitBreaker(
+      action,
+      defaultOptions,
+    ) as CircuitBreaker<Parameters<T>, ReturnType<T>>;
 
     // Event listeners for monitoring
-    breaker.on('open', () => {
+    breaker.on("open", () => {
       this.logger.warn(`Circuit breaker [${name}] opened`);
     });
 
-    breaker.on('halfOpen', () => {
+    breaker.on("halfOpen", () => {
       this.logger.log(`Circuit breaker [${name}] half-open`);
     });
 
-    breaker.on('close', () => {
+    breaker.on("close", () => {
       this.logger.log(`Circuit breaker [${name}] closed`);
     });
 
-    breaker.on('failure', (error) => {
-      this.logger.error(`Circuit breaker [${name}] failure: ${error.message}`);
+    breaker.on("failure", (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      this.logger.error(`Circuit breaker [${name}] failure: ${errorMessage}`);
     });
 
     this.breakers.set(name, breaker);
