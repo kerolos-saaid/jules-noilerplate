@@ -175,13 +175,14 @@ export class QueryBuilderService {
           [paramName]: value,
         });
         break;
-      case FilterOperator.LIKE:
+      case FilterOperator.LIKE: {
         // Escape special characters in LIKE patterns
         const escapedValue = this.escapeLikePattern(value);
         queryBuilder.andWhere(`LOWER(${fieldPath}) LIKE LOWER(:${paramName})`, {
           [paramName]: `%${escapedValue}%`,
         });
         break;
+      }
       case FilterOperator.IN:
         if (Array.isArray(value)) {
           queryBuilder.andWhere(`${fieldPath} IN (:...${paramName})`, {

@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-} from "@nestjs/common";
+import { Injectable, ConflictException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "../users/users.service";
@@ -21,6 +17,7 @@ export class AuthService {
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findOne(username);
     if (user && (await bcrypt.compare(pass, user.password_hash))) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password_hash, ...result } = user;
       return result;
     }
@@ -66,6 +63,7 @@ export class AuthService {
       password_hash: hashedPassword,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password_hash, ...result } = user;
     return result;
   }

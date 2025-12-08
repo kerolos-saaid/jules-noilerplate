@@ -324,7 +324,7 @@ describe("Property 17: Standardized error responses", () => {
       },
     ];
 
-    exceptions.forEach(({ exception, expectedPattern }) => {
+    exceptions.forEach(({ exception }) => {
       mockResponse.json.mockClear();
 
       filter.catch(exception, mockArgumentsHost);
