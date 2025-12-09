@@ -1,14 +1,11 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-} from "@nestjs/common";
+import { Injectable, ConflictException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "../users/users.service";
 import * as bcrypt from "bcrypt";
 import { JwtPayload } from "./strategies/jwt.strategy";
 import { RegisterDto } from "./dto/register.dto";
+import { User } from "../users/entities/user.entity";
 
 @Injectable()
 export class AuthService {
@@ -21,32 +18,32 @@ export class AuthService {
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findOne(username);
     if (user && (await bcrypt.compare(pass, user.password_hash))) {
-      const { password_hash, ...result } = user;
+      const { password_hash: _, ...result } = user;
       return result;
     }
     return null;
   }
 
-  async login(user: any) {
+  async login(user: User) {
     const payload: JwtPayload = {
       sub: user.id,
-      roles: user.roles.map((r: any) => r.name),
+      roles: user.roles.map((r) => r.name),
     };
-    return {
+    return Promise.resolve({
       access_token: this.jwtService.sign(payload),
       refresh_token: this.jwtService.sign(payload, {
         secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
         expiresIn: (this.configService.get<string>("JWT_REFRESH_EXPIRES_IN") ||
           "7d") as `${number}${"s" | "m" | "h" | "d"}`,
       }),
-    };
+    });
   }
 
   async refreshToken(user: any) {
     const payload: JwtPayload = { sub: user.sub, roles: user.roles };
-    return {
+    return Promise.resolve({
       access_token: this.jwtService.sign(payload),
-    };
+    });
   }
 
   async register(registerDto: RegisterDto) {
@@ -66,7 +63,7 @@ export class AuthService {
       password_hash: hashedPassword,
     });
 
-    const { password_hash, ...result } = user;
+    const { password_hash: _, ...result } = user;
     return result;
   }
 }

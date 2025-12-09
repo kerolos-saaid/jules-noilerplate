@@ -4,9 +4,8 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  BadRequestException,
 } from "@nestjs/common";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { QueryFailedError } from "typeorm";
 
 /**
@@ -30,7 +29,7 @@ export class QueryExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest();
+    const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = "Internal server error";
@@ -42,16 +41,25 @@ export class QueryExceptionFilter implements ExceptionFilter {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      if (typeof exceptionResponse === "object") {
-        const responseObj = exceptionResponse as any;
-        message = responseObj.message || exception.message;
+      if (
+        typeof exceptionResponse === "object" &&
+        exceptionResponse !== null &&
+        !Array.isArray(exceptionResponse)
+      ) {
+        const responseObj = exceptionResponse as {
+          message?: string | string[];
+          error?: string;
+        };
+        message = Array.isArray(responseObj.message)
+          ? responseObj.message[0]
+          : responseObj.message || exception.message;
         error = responseObj.error || exception.name;
 
         // Include validation details if present
         if (Array.isArray(responseObj.message)) {
           details = responseObj.message;
         }
-      } else {
+      } else if (typeof exceptionResponse === "string") {
         message = exceptionResponse;
         error = exception.name;
       }
@@ -63,7 +71,10 @@ export class QueryExceptionFilter implements ExceptionFilter {
       message = "Database query failed";
 
       // Extract useful information from the query error
-      const queryError = exception as any;
+      const queryError = exception as QueryFailedError & {
+        code: string;
+        detail: string;
+      };
 
       // Handle specific database errors
       if (queryError.code === "23505") {

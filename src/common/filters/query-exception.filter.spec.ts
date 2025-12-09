@@ -4,7 +4,9 @@ import { QueryFailedError } from "typeorm";
 
 describe("QueryExceptionFilter", () => {
   let filter: QueryExceptionFilter;
+
   let mockResponse: any;
+
   let mockRequest: any;
   let mockArgumentsHost: ArgumentsHost;
 
@@ -25,7 +27,7 @@ describe("QueryExceptionFilter", () => {
         getResponse: () => mockResponse,
         getRequest: () => mockRequest,
       }),
-    } as any;
+    } as unknown as ArgumentsHost;
   });
 
   describe("HTTP Exceptions", () => {
@@ -73,7 +75,9 @@ describe("QueryExceptionFilter", () => {
         [],
         new Error("duplicate key value"),
       );
+
       (exception as any).code = "23505";
+
       (exception as any).detail =
         "Key (email)=(test@example.com) already exists.";
 
@@ -95,6 +99,7 @@ describe("QueryExceptionFilter", () => {
         [],
         new Error("foreign key constraint"),
       );
+
       (exception as any).code = "23503";
 
       filter.catch(exception, mockArgumentsHost);
@@ -115,6 +120,7 @@ describe("QueryExceptionFilter", () => {
         [],
         new Error("invalid input syntax"),
       );
+
       (exception as any).code = "22P02";
 
       filter.catch(exception, mockArgumentsHost);
@@ -191,6 +197,7 @@ describe("QueryExceptionFilter", () => {
 
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
       expect(responseCall).toHaveProperty("statusCode");
       expect(responseCall).toHaveProperty("message");
@@ -204,6 +211,7 @@ describe("QueryExceptionFilter", () => {
 
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
       expect(() => new Date(responseCall.timestamp)).not.toThrow();
     });
@@ -213,6 +221,7 @@ describe("QueryExceptionFilter", () => {
 
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
       expect(responseCall.path).toBe("/api/users");
     });

@@ -70,6 +70,7 @@ export class CircuitBreakerService {
     ...args: any[]
   ): Promise<T> {
     const breaker = this.createBreaker(name, action, options);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return breaker.fire(...args);
   }
 

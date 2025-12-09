@@ -10,7 +10,7 @@ export function WithCircuitBreaker(
   options?: CircuitBreakerOptions,
 ): MethodDecorator {
   return (
-    target: any,
+    target: object,
     propertyKey: string | symbol,
     descriptor: PropertyDescriptor,
   ) => {

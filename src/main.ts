@@ -1,4 +1,8 @@
-import { ValidationPipe, VersioningType } from "@nestjs/common";
+import {
+  INestApplication,
+  ValidationPipe,
+  VersioningType,
+} from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { ConfigService } from "@nestjs/config";
@@ -9,7 +13,7 @@ import { RequestIdInterceptor } from "./core/interceptors/request-id.interceptor
 import { ClsService } from "nestjs-cls";
 import { QueryExceptionFilter } from "./common/filters/query-exception.filter";
 
-function setupSwagger(app: any): void {
+function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
     .setTitle("NestJS Boilerplate API")
     .setDescription("The NestJS Boilerplate API description")
@@ -70,4 +74,4 @@ async function bootstrap() {
 
   await app.listen(port);
 }
-bootstrap();
+void bootstrap();

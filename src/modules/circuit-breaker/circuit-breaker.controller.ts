@@ -55,10 +55,11 @@ export class CircuitBreakerController {
 
       return result;
     } catch (error) {
+      const err = error as Error;
       return {
         success: false,
-        message: error.message,
-        circuitOpen: error.message.includes("breaker is open"),
+        message: err.message,
+        circuitOpen: err.message.includes("breaker is open"),
         timestamp: new Date().toISOString(),
       };
     }

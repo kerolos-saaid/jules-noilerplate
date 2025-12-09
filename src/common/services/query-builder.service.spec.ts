@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { QueryBuilderService } from "./query-builder.service";
-import { SelectQueryBuilder } from "typeorm";
+import { ObjectLiteral, SelectQueryBuilder } from "typeorm";
 import { PaginationQueryDto } from "../dto/pagination-query.dto";
 
 describe("QueryBuilderService", () => {
@@ -57,7 +57,9 @@ describe("QueryBuilderService", () => {
         service.applyPagination(mockQueryBuilder, paginationDto);
 
         const expectedSkip = (page - 1) * Math.min(limit, 100);
+
         const skipCalls = (mockQueryBuilder.skip as jest.Mock).mock.calls;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
         const actualSkip = skipCalls[skipCalls.length - 1][0];
 
         // Property: offset calculation must be correct
@@ -103,6 +105,7 @@ describe("QueryBuilderService", () => {
         service.applyPagination(mockQueryBuilder, paginationDto);
 
         const takeCalls = (mockQueryBuilder.take as jest.Mock).mock.calls;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
         const actualLimit = takeCalls[takeCalls.length - 1][0];
 
         // Property: returned limit should never exceed 100
@@ -329,6 +332,7 @@ describe("QueryBuilderService", () => {
 
       // Property: andWhere should be called for each equality filter
       expect(mockQueryBuilder.andWhere).toHaveBeenCalled();
+
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
       expect(calls.length).toBeGreaterThanOrEqual(2);
     });
@@ -355,7 +359,8 @@ describe("QueryBuilderService", () => {
       service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
-      expect(calls.some((call) => call[0].includes(">"))).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      expect(calls.some((call: any[]) => call[0].includes(">"))).toBe(true);
     });
 
     it("should apply less than operator correctly", () => {
@@ -366,7 +371,8 @@ describe("QueryBuilderService", () => {
       service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
-      expect(calls.some((call) => call[0].includes("<"))).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      expect(calls.some((call: any[]) => call[0].includes("<"))).toBe(true);
     });
 
     it("should apply gte and lte operators correctly", () => {
@@ -377,8 +383,10 @@ describe("QueryBuilderService", () => {
       service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
-      expect(calls.some((call) => call[0].includes(">="))).toBe(true);
-      expect(calls.some((call) => call[0].includes("<="))).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      expect(calls.some((call: any[]) => call[0].includes(">="))).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      expect(calls.some((call: any[]) => call[0].includes("<="))).toBe(true);
     });
   });
 
@@ -393,8 +401,10 @@ describe("QueryBuilderService", () => {
       service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
-      expect(calls.some((call) => call[0].includes("LOWER"))).toBe(true);
-      expect(calls.some((call) => call[0].includes("LIKE"))).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      expect(calls.some((call: any[]) => call[0].includes("LOWER"))).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      expect(calls.some((call: any[]) => call[0].includes("LIKE"))).toBe(true);
     });
 
     it("should escape special characters in LIKE patterns", () => {
@@ -405,7 +415,9 @@ describe("QueryBuilderService", () => {
       service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
       const params = calls[0][1];
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const paramValue = Object.values(params)[0] as string;
 
       // Property: special characters should be escaped
@@ -429,6 +441,7 @@ describe("QueryBuilderService", () => {
       service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       // Property: andWhere should be called for each filter
+
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
       expect(calls.length).toBeGreaterThanOrEqual(3);
     });
@@ -456,6 +469,7 @@ describe("QueryBuilderService", () => {
       service.applyFilters(mockQueryBuilder, filters, allowedFields, "user");
 
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(calls[0][0]).toContain("profile.age");
     });
   });
@@ -476,8 +490,10 @@ describe("QueryBuilderService", () => {
       const calls = (mockQueryBuilder.andWhere as jest.Mock).mock.calls;
 
       // Property: all calls should have parameter objects
-      calls.forEach((call) => {
-        expect(call[0]).toContain(":");
+
+      calls.forEach((call: any[]) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+        expect(call[0].includes(":")).toBe(true);
         expect(call[1]).toBeDefined();
         expect(typeof call[1]).toBe("object");
       });
@@ -685,7 +701,10 @@ describe("QueryBuilderService", () => {
 });
 
 // Helper function to create a mock query builder
-function createMockQueryBuilder(): SelectQueryBuilder<any> {
+
+function createMockQueryBuilder<
+  T extends ObjectLiteral,
+>(): SelectQueryBuilder<T> {
   return {
     skip: jest.fn().mockReturnThis(),
     take: jest.fn().mockReturnThis(),
@@ -693,5 +712,5 @@ function createMockQueryBuilder(): SelectQueryBuilder<any> {
     addOrderBy: jest.fn().mockReturnThis(),
     andWhere: jest.fn().mockReturnThis(),
     getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
-  } as any;
+  } as unknown as SelectQueryBuilder<T>;
 }

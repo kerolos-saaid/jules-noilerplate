@@ -7,8 +7,8 @@ export class OwnershipGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    const user = request.user;
-    const resourceId = request.params.id; // Assuming the resource ID is in the route params
+    const user = (request as { user: { sub: string } }).user;
+    const resourceId = (request as { params: { id: string } }).params.id; // Assuming the resource ID is in the route params
 
     // In a real implementation, you would fetch the resource from the database
     // and check if `user.id` matches the resource's owner ID.

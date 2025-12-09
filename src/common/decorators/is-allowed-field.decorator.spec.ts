@@ -54,6 +54,7 @@ describe("IsAllowedField Decorator", () => {
 
   it("should fail validation for non-string value", async () => {
     const dto = new TestDto();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     (dto as any).sortBy = 123;
 
     const errors = await validate(dto);

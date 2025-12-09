@@ -18,14 +18,14 @@ export class AuthController {
   @Throttle({ short: { limit: 2, ttl: 1000 } })
   @UseGuards(LocalAuthGuard)
   @Post("login")
-  async login(@Request() req) {
+  async login(@Request() req: { user: any }) {
     return this.authService.login(req.user);
   }
 
   @Throttle({ short: { limit: 2, ttl: 1000 } })
   @UseGuards(JwtRefreshGuard)
   @Post("refresh")
-  async refresh(@Request() req) {
+  async refresh(@Request() req: { user: any }) {
     return this.authService.refreshToken(req.user);
   }
 }
