@@ -145,44 +145,45 @@ export class QueryBuilderService {
     const paramName = this.generateParamName(field, operator);
 
     switch (operator) {
-      case FilterOperator.EQUALS:
+      case FilterOperator.EQUALS as string:
         queryBuilder.andWhere(`${fieldPath} = :${paramName}`, {
           [paramName]: value,
         });
         break;
-      case FilterOperator.NOT_EQUALS:
+      case FilterOperator.NOT_EQUALS as string:
         queryBuilder.andWhere(`${fieldPath} != :${paramName}`, {
           [paramName]: value,
         });
         break;
-      case FilterOperator.GREATER_THAN:
+      case FilterOperator.GREATER_THAN as string:
         queryBuilder.andWhere(`${fieldPath} > :${paramName}`, {
           [paramName]: value,
         });
         break;
-      case FilterOperator.GREATER_THAN_OR_EQUAL:
+      case FilterOperator.GREATER_THAN_OR_EQUAL as string:
         queryBuilder.andWhere(`${fieldPath} >= :${paramName}`, {
           [paramName]: value,
         });
         break;
-      case FilterOperator.LESS_THAN:
+      case FilterOperator.LESS_THAN as string:
         queryBuilder.andWhere(`${fieldPath} < :${paramName}`, {
           [paramName]: value,
         });
         break;
-      case FilterOperator.LESS_THAN_OR_EQUAL:
+      case FilterOperator.LESS_THAN_OR_EQUAL as string:
         queryBuilder.andWhere(`${fieldPath} <= :${paramName}`, {
           [paramName]: value,
         });
         break;
-      case FilterOperator.LIKE:
+      case FilterOperator.LIKE as string:
         // Escape special characters in LIKE patterns
-        const escapedValue = this.escapeLikePattern(value);
+        // eslint-disable-next-line no-case-declarations
+        const escapedValue = this.escapeLikePattern(value as string);
         queryBuilder.andWhere(`LOWER(${fieldPath}) LIKE LOWER(:${paramName})`, {
           [paramName]: `%${escapedValue}%`,
         });
         break;
-      case FilterOperator.IN:
+      case FilterOperator.IN as string:
         if (Array.isArray(value)) {
           queryBuilder.andWhere(`${fieldPath} IN (:...${paramName})`, {
             [paramName]: value,

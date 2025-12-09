@@ -17,7 +17,9 @@ import { QueryFailedError } from "typeorm";
  */
 describe("Property 17: Standardized error responses", () => {
   let filter: QueryExceptionFilter;
+
   let mockResponse: any;
+
   let mockRequest: any;
   let mockArgumentsHost: ArgumentsHost;
 
@@ -38,7 +40,7 @@ describe("Property 17: Standardized error responses", () => {
         getResponse: () => mockResponse,
         getRequest: () => mockRequest,
       }),
-    } as any;
+    } as unknown as ArgumentsHost;
   });
 
   /**
@@ -64,6 +66,7 @@ describe("Property 17: Standardized error responses", () => {
 
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
 
       // Property: response must have all required fields
@@ -107,7 +110,9 @@ describe("Property 17: Standardized error responses", () => {
 
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const statusCall = mockResponse.status.mock.calls[0][0];
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
 
       // Property: status code must be valid and match expected
@@ -132,6 +137,7 @@ describe("Property 17: Standardized error responses", () => {
 
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
       const timestamp = responseCall.timestamp;
 
@@ -163,6 +169,7 @@ describe("Property 17: Standardized error responses", () => {
 
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
 
       // Property: message must be a non-empty string
@@ -190,6 +197,7 @@ describe("Property 17: Standardized error responses", () => {
       const exception = new BadRequestException("Test error");
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
 
       // Property: path must match the request URL
@@ -217,6 +225,7 @@ describe("Property 17: Standardized error responses", () => {
 
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
 
       // Property: details must be present and contain the validation messages
@@ -257,11 +266,14 @@ describe("Property 17: Standardized error responses", () => {
         [],
         new Error("DB error"),
       );
+
       (exception as any).code = code;
 
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const statusCall = mockResponse.status.mock.calls[0][0];
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
 
       // Property: database errors must map to correct status and error type
@@ -286,6 +298,7 @@ describe("Property 17: Standardized error responses", () => {
     const responses = exceptions.map((exception) => {
       mockResponse.json.mockClear();
       filter.catch(exception, mockArgumentsHost);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       return mockResponse.json.mock.calls[0][0];
     });
 
@@ -329,12 +342,14 @@ describe("Property 17: Standardized error responses", () => {
 
       filter.catch(exception, mockArgumentsHost);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const responseCall = mockResponse.json.mock.calls[0][0];
 
       // Property: error type must be descriptive
       expect(responseCall.error).toBeTruthy();
       expect(typeof responseCall.error).toBe("string");
       expect(responseCall.error.length).toBeGreaterThan(0);
+      expect(responseCall.error).toMatch(expectedPattern);
     });
   });
 
@@ -349,6 +364,7 @@ describe("Property 17: Standardized error responses", () => {
     for (let i = 0; i < 5; i++) {
       mockResponse.json.mockClear();
       filter.catch(exception, mockArgumentsHost);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       responses.push(mockResponse.json.mock.calls[0][0]);
     }
 

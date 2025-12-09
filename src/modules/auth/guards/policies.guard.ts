@@ -3,6 +3,7 @@ import { Reflector } from "@nestjs/core";
 import { AppAbility, CaslAbilityFactory } from "../casl/casl-ability.factory";
 import { CHECK_POLICIES_KEY } from "../decorators/check-policies.decorator";
 import { PolicyHandler } from "../interfaces/policy-handler.interface";
+import { User } from "../../users/entities/user.entity";
 
 @Injectable()
 export class PoliciesGuard implements CanActivate {
@@ -18,11 +19,14 @@ export class PoliciesGuard implements CanActivate {
         context.getHandler(),
       ) || [];
 
-    const { user } = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest();
+    const user = (request as { user: User }).user;
     const ability = this.caslAbilityFactory.createForUser(user);
 
-    return policyHandlers.every((handler) =>
-      this.execPolicyHandler(handler, ability),
+    return Promise.resolve(
+      policyHandlers.every((handler) =>
+        this.execPolicyHandler(handler, ability),
+      ),
     );
   }
 

@@ -71,6 +71,7 @@ describe("UsersService", () => {
       const mockQueryBuilder = createMockQueryBuilder();
       jest
         .spyOn(repository, "createQueryBuilder")
+
         .mockReturnValue(mockQueryBuilder as any);
       jest.spyOn(cacheService, "get").mockResolvedValue(null);
 
@@ -91,15 +92,19 @@ describe("UsersService", () => {
 
       jest
         .spyOn(queryBuilderService, "applyFilters")
+
         .mockReturnValue(mockQueryBuilder as any);
       jest
         .spyOn(queryBuilderService, "applySorting")
+
         .mockReturnValue(mockQueryBuilder as any);
       jest
         .spyOn(queryBuilderService, "applyPagination")
+
         .mockReturnValue(mockQueryBuilder as any);
       jest
         .spyOn(queryBuilderService, "paginate")
+
         .mockResolvedValue(mockResult as any);
 
       const result = await service.findAll(queryDto);
@@ -167,6 +172,7 @@ describe("UsersService", () => {
         const mockQueryBuilder = createMockQueryBuilder();
         jest
           .spyOn(repository, "createQueryBuilder")
+
           .mockReturnValue(mockQueryBuilder as any);
         jest.spyOn(cacheService, "get").mockResolvedValue(null);
 
@@ -184,15 +190,19 @@ describe("UsersService", () => {
 
         jest
           .spyOn(queryBuilderService, "applyFilters")
+
           .mockReturnValue(mockQueryBuilder as any);
         jest
           .spyOn(queryBuilderService, "applySorting")
+
           .mockReturnValue(mockQueryBuilder as any);
         jest
           .spyOn(queryBuilderService, "applyPagination")
+
           .mockReturnValue(mockQueryBuilder as any);
         jest
           .spyOn(queryBuilderService, "paginate")
+
           .mockResolvedValue(mockResult as any);
 
         const result = await service.findAll(queryDto);
@@ -221,6 +231,7 @@ describe("UsersService", () => {
       const mockQueryBuilder = createMockQueryBuilder();
       jest
         .spyOn(repository, "createQueryBuilder")
+
         .mockReturnValue(mockQueryBuilder as any);
       jest.spyOn(cacheService, "get").mockResolvedValue(null);
 
@@ -238,15 +249,19 @@ describe("UsersService", () => {
 
       jest
         .spyOn(queryBuilderService, "applyFilters")
+
         .mockReturnValue(mockQueryBuilder as any);
       jest
         .spyOn(queryBuilderService, "applySorting")
+
         .mockReturnValue(mockQueryBuilder as any);
       jest
         .spyOn(queryBuilderService, "applyPagination")
+
         .mockReturnValue(mockQueryBuilder as any);
       jest
         .spyOn(queryBuilderService, "paginate")
+
         .mockResolvedValue(mockResult as any);
 
       await service.findAll(queryDto);
@@ -297,6 +312,7 @@ describe("UsersService", () => {
         const mockQueryBuilder = createMockQueryBuilder();
         jest
           .spyOn(repository, "createQueryBuilder")
+
           .mockReturnValue(mockQueryBuilder as any);
         jest.spyOn(cacheService, "get").mockResolvedValue(null);
 
@@ -314,15 +330,19 @@ describe("UsersService", () => {
 
         jest
           .spyOn(queryBuilderService, "applyFilters")
+
           .mockReturnValue(mockQueryBuilder as any);
         jest
           .spyOn(queryBuilderService, "applySorting")
+
           .mockReturnValue(mockQueryBuilder as any);
         jest
           .spyOn(queryBuilderService, "applyPagination")
+
           .mockReturnValue(mockQueryBuilder as any);
         jest
           .spyOn(queryBuilderService, "paginate")
+
           .mockResolvedValue(mockResult as any);
 
         await service.findAll(queryDto);
@@ -378,5 +398,5 @@ function createMockQueryBuilder(): SelectQueryBuilder<User> {
     addOrderBy: jest.fn().mockReturnThis(),
     andWhere: jest.fn().mockReturnThis(),
     getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
-  } as any;
+  } as unknown as SelectQueryBuilder<User>;
 }

@@ -12,7 +12,7 @@ import {
 @ValidatorConstraint({ name: "isAllowedField", async: false })
 export class IsAllowedFieldConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments): boolean {
-    const [allowedFields] = args.constraints;
+    const [allowedFields] = args.constraints as [string[]];
 
     if (!value) {
       return true; // Allow undefined/null values (use @IsOptional for that)
@@ -30,7 +30,7 @@ export class IsAllowedFieldConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments): string {
-    const [allowedFields] = args.constraints;
+    const [allowedFields] = args.constraints as [string[]];
     const property = args.property;
     return `${property} must be one of: ${allowedFields.join(", ")}`;
   }

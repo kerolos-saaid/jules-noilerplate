@@ -20,8 +20,8 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   async validate(req: Request, payload: JwtPayload): Promise<any> {
-    const refreshToken = req.body.refreshToken;
+    const refreshToken = (req.body as { refreshToken: string }).refreshToken;
     // Here you could add logic to check if the refresh token is revoked
-    return { ...payload, refreshToken };
+    return Promise.resolve({ ...payload, refreshToken });
   }
 }

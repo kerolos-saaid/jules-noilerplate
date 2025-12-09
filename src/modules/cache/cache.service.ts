@@ -12,7 +12,7 @@ export class CacheService {
       return null;
     }
     try {
-      return JSON.parse(value);
+      return JSON.parse(value) as T;
     } catch {
       // If JSON.parse fails, return null and let the caller handle it
       return null;
